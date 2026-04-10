@@ -1,0 +1,89 @@
+# Action Desk — production-style stack (loopback-published app ports for host nginx).
+# From repo root: docker compose -f infra/compose/docker-compose.yml up -d --build
+# See docs/runbooks/deploy_actiondesk.md
+
+name: actiondesk
+
+services:
+  actiondesk-postgres:
+    image: postgres:16-alpine
+    container_name: actiondesk-postgres
+    env_file:
+      - ../env/postgres.env
+    volumes:
+      - actiondesk_pgdata:/var/lib/postgresql/data
+    networks:
+      - actiondesk-internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  actiondesk-backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    container_name: actiondesk-backend
+    env_file:
+      - ../env/backend.env
+    ports:
+      - "127.0.0.1:8002:8000"
+    depends_on:
+      actiondesk-postgres:
+        condition: service_healthy
+    networks:
+      - actiondesk-internal
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  actiondesk-frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "/api"
+    container_name: actiondesk-frontend
+    env_file:
+      - ../env/frontend.env
+    ports:
+      - "127.0.0.1:3002:3000"
+    depends_on:
+      actiondesk-backend:
+        condition: service_healthy
+    networks:
+      - actiondesk-internal
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  actiondesk-internal:
+    name: actiondesk-internal
+    driver: bridge
+
+volumes:
+  actiondesk_pgdata:
+    name: actiondesk_pgdata

@@ -1,0 +1,255 @@
+# Bratek remote MCP gateway — isolated stack; does not modify ScheduleLab / ControlTower / etc.
+# Deploy: see README.md and ops/runbooks/deploy.md
+
+services:
+  nginx:
+    # Bookworm-based image includes wget with TLS flags useful for in-container HTTPS health checks.
+    image: nginx:1.26-bookworm
+    container_name: mcp_gateway_nginx
+    depends_on:
+      auth_sidecar:
+        condition: service_healthy
+      mcp_control_panel:
+        condition: service_healthy
+      sample_mcp:
+        condition: service_healthy
+      schedulelab_mcp:
+        condition: service_healthy
+      controltower_mcp:
+        condition: service_healthy
+      schedule_analysis_mcp:
+        condition: service_healthy
+      controltower_orchestrator_mcp:
+        condition: service_healthy
+    ports:
+      - "${MCP_GATEWAY_HTTPS_PUBLISH:-443:443}"
+      - "${MCP_GATEWAY_HTTP_PUBLISH:-80:80}"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ${TLS_VOLUME_MOUNT:-./tls}:/etc/nginx/tls:ro
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-fsSk",
+          "-o",
+          "/dev/null",
+          "https://127.0.0.1/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  auth_sidecar:
+    build:
+      context: ./services/auth_sidecar
+      dockerfile: Dockerfile
+    container_name: mcp_gateway_auth_sidecar
+    environment:
+      MCP_BEARER_TOKEN: ${MCP_BEARER_TOKEN:?set MCP_BEARER_TOKEN in .env}
+    expose:
+      - "8089"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8089/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  sample_mcp:
+    build:
+      context: .
+      dockerfile: services/sample_mcp/Dockerfile
+    container_name: mcp_gateway_sample_mcp
+    environment:
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL:-https://mcp.bratek.io}
+      MCP_PUBLIC_HOST: ${MCP_PUBLIC_HOST:-mcp.bratek.io}
+      MCP_EXTRA_ALLOWED_HOSTS: ${MCP_EXTRA_ALLOWED_HOSTS:-}
+      SERVICE_NAME: sample_mcp
+      PYTHONUNBUFFERED: "1"
+    expose:
+      - "8080"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  schedulelab_mcp:
+    build:
+      context: .
+      dockerfile: services/schedulelab_mcp/Dockerfile
+    container_name: mcp_gateway_schedulelab_mcp
+    environment:
+      SERVICE_NAME: schedulelab_mcp
+      SCHEDULELAB_PUBLISHED_ROOT: /data/published
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL:-https://mcp.bratek.io}
+      MCP_PUBLIC_HOST: ${MCP_PUBLIC_HOST:-mcp.bratek.io}
+      MCP_EXTRA_ALLOWED_HOSTS: ${MCP_EXTRA_ALLOWED_HOSTS:-}
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ${SCHEDULELAB_PUBLISHED_HOST_PATH:-/app/schedulelab_data/published}:/data/published:ro
+    expose:
+      - "8080"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  schedule_analysis_mcp:
+    build:
+      context: .
+      dockerfile: services/schedule_analysis_mcp/Dockerfile
+    container_name: mcp_gateway_schedule_analysis_mcp
+    environment:
+      SERVICE_NAME: schedule_analysis_mcp
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL:-https://mcp.bratek.io}
+      MCP_PUBLIC_HOST: ${MCP_PUBLIC_HOST:-mcp.bratek.io}
+      MCP_EXTRA_ALLOWED_HOSTS: ${MCP_EXTRA_ALLOWED_HOSTS:-}
+      PYTHONUNBUFFERED: "1"
+    expose:
+      - "8080"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  controltower_orchestrator_mcp:
+    build:
+      context: .
+      dockerfile: services/controltower_orchestrator_mcp/Dockerfile
+    container_name: mcp_gateway_controltower_orchestrator_mcp
+    environment:
+      SERVICE_NAME: controltower_orchestrator_mcp
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL:-https://mcp.bratek.io}
+      MCP_PUBLIC_HOST: ${MCP_PUBLIC_HOST:-mcp.bratek.io}
+      MCP_EXTRA_ALLOWED_HOSTS: ${MCP_EXTRA_ALLOWED_HOSTS:-}
+      PYTHONUNBUFFERED: "1"
+    expose:
+      - "8080"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  controltower_mcp:
+    build:
+      context: .
+      dockerfile: services/controltower_mcp/Dockerfile
+    container_name: mcp_gateway_controltower_mcp
+    environment:
+      SERVICE_NAME: controltower_mcp
+      CONTROLTOWER_RUNTIME_ROOT: /data/controltower_runtime
+      GATEWAY_PUBLIC_URL: ${GATEWAY_PUBLIC_URL:-https://mcp.bratek.io}
+      MCP_PUBLIC_HOST: ${MCP_PUBLIC_HOST:-mcp.bratek.io}
+      MCP_EXTRA_ALLOWED_HOSTS: ${MCP_EXTRA_ALLOWED_HOSTS:-}
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ${CONTROLTOWER_RUNTIME_HOST_PATH:-/srv/controltower/shared/.controltower_runtime}:/data/controltower_runtime:ro
+    expose:
+      - "8080"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mcp_control_panel:
+    build:
+      context: .
+      dockerfile: services/control_panel/Dockerfile
+    container_name: mcp_gateway_control_panel
+    environment:
+      MCP_PANEL_USER: ${MCP_PANEL_USER:-operator}
+      MCP_PANEL_PASSWORD: ${MCP_PANEL_PASSWORD:?set MCP_PANEL_PASSWORD in .env}
+      MCP_PANEL_SESSION_SECRET: ${MCP_PANEL_SESSION_SECRET:?set MCP_PANEL_SESSION_SECRET in .env}
+      MCP_PANEL_SESSION_HTTPS_ONLY: ${MCP_PANEL_SESSION_HTTPS_ONLY:-true}
+      MCP_PANEL_SESSION_MAX_AGE: ${MCP_PANEL_SESSION_MAX_AGE:-86400}
+      MCP_PANEL_HISTORY_MAX: ${MCP_PANEL_HISTORY_MAX:-500}
+      MCP_PANEL_LOG_PATH: ${MCP_PANEL_LOG_PATH:-}
+      INTERNAL_MCP_SAMPLE_URL: ${INTERNAL_MCP_SAMPLE_URL:-http://sample_mcp:8080/mcp/}
+      INTERNAL_MCP_SCHEDULELAB_URL: ${INTERNAL_MCP_SCHEDULELAB_URL:-http://schedulelab_mcp:8080/mcp/}
+      INTERNAL_MCP_CONTROLTOWER_URL: ${INTERNAL_MCP_CONTROLTOWER_URL:-http://controltower_mcp:8080/mcp/}
+      INTERNAL_MCP_SCHEDULE_ANALYSIS_URL: ${INTERNAL_MCP_SCHEDULE_ANALYSIS_URL:-http://schedule_analysis_mcp:8080/mcp/}
+      INTERNAL_MCP_CONTROLTOWER_ORCHESTRATOR_URL: ${INTERNAL_MCP_CONTROLTOWER_ORCHESTRATOR_URL:-http://controltower_orchestrator_mcp:8080/mcp/}
+      PYTHONUNBUFFERED: "1"
+    expose:
+      - "8000"
+    depends_on:
+      sample_mcp:
+        condition: service_healthy
+      schedulelab_mcp:
+        condition: service_healthy
+      controltower_mcp:
+        condition: service_healthy
+      schedule_analysis_mcp:
+        condition: service_healthy
+      controltower_orchestrator_mcp:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
