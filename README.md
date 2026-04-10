@@ -1,33 +1,53 @@
 # Bratek Operator Stack (Clean Edition)
 
-This repository is a **clean restart foundation**. It exists to hold **small, reusable operator patterns** extracted from a prior prototype workspace—not to preserve legacy products, domains, or full applications.
+Clean foundation for Bratek **operator infrastructure**: salvaged patterns plus a **Phase 1** runnable Docker stack (Metabase + n8n + Postgres) for local use.
 
-## What this is
+## What this repo is
 
-- **Starter assets** only: nginx examples, compose skeletons, MCP edge reference, backup scripts, env contracts, and a few reference documents.
-- **No application code** beyond a self-contained bearer-auth sidecar used by the MCP edge pattern.
-- **No production deployment** is defined here yet.
+- **Phase 1 (root `docker-compose.yml`)** — loopback-only BI + workflow tools backed by Postgres.
+- **`starter-assets/`** — small extracted files from retired prototypes (nginx/compose/MCP edge **examples** only; not auto-wired).
+- **`docs/`** — architecture, deployment, migration decisions, salvage inventory, workspace audit snapshot.
+- **`scripts/`** — Phase 1 smoke test; workspace inventory / archive-delete **dry-run** planners (no destructive actions inside the scripts).
 
-## What this is not
+## What Phase 1 includes
 
-- Not a monorepo of Control Tower, WorkOS, ProfitIntel, or any other retired prototype.
-- Not a source of truth for `*.bratek.io` routing (examples may still mention old hostnames for traceability).
+- **Postgres 16** (internal-only; no host port).
+- **Metabase** at `http://127.0.0.1:8082`.
+- **n8n** at `http://127.0.0.1:8083`.
+- Named Docker volumes for Postgres and n8n data.
 
-## Layout
+## Quick start (Phase 1)
 
-| Path | Purpose |
-|------|---------|
-| `docs/` | Salvage inventory, migration decisions, repo architecture notes |
-| `starter-assets/` | Copy-paste or adapt when building real infra |
-| `scripts/` | **Dry-run** workspace inventory and cleanup staging (no deletes by default) |
+```bash
+cp .env.example .env
+# Edit .env — set passwords
 
-## Next steps
+docker compose up -d
+# After services are healthy:
+bash scripts/smoke.sh
+```
 
-1. Review `docs/migration_decisions.md` and `docs/salvage_inventory.md`.
-2. Run `bash scripts/inventory_workspace.sh` from this repo root (Git Bash / WSL).
-3. After human review, use `stage_archive_plan.sh` / `stage_delete_plan.sh` only as printed command lists against the **parent** workspace—then execute moves/deletes manually if approved.
+Full steps: **`docs/deployment.md`**. Architecture and boundaries: **`docs/architecture.md`**.
+
+## What is intentionally deferred
+
+- TLS, nginx, public hostnames
+- OpenProject, SSO, MCP production edge
+- Wiring `starter-assets/` into a live stack without a new design pass
+- Automatic execution of prototype **archive** or **delete** (operator-driven; see `scripts/stage_archive_plan.sh`)
+
+## Legacy workspace cleanup
+
+After **you** confirm an off-host backup of `c:\Dev` (or equivalent), review printed commands from:
+
+```bash
+bash scripts/inventory_workspace.sh
+bash scripts/stage_archive_plan.sh
+```
+
+Execute any `mkdir`/`mv` **manually** in Git Bash—never run `stage_delete_plan.sh` output until archives are verified.
 
 ## Conventions
 
-- Prefer **generic** hostnames and paths when adapting examples.
-- Treat everything under `starter-assets/reference-only/` as **read-only inspiration**, not dependencies.
+- `.env` is gitignored; only `.env.example` is committed.
+- Treat `starter-assets/reference-only/` as read-only inspiration.
