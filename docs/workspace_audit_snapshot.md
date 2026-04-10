@@ -8,8 +8,8 @@
 
 - **branch:** `master`
 - **HEAD at capture:** run `git -C operator-stack-clean rev-parse HEAD` (this file is version-controlled; the commit that added it is the audit record).
-- **known commits in this lock series:** `094307c` — Initial clean salvage foundation; `945dd47` — docs: workspace audit snapshot; `c7c2e33` — docs: correct git HEAD in workspace audit snapshot; `08bbe8f` — docs: stabilize git state section in audit snapshot.
-- **working tree status:** clean (after final documentation commit)
+- **history:** `git log --oneline` — root is `094307c` (Initial clean salvage foundation); follow-up commits add this audit document and small doc fixes.
+- **working tree status:** clean
 
 ## Inventory Output
 
