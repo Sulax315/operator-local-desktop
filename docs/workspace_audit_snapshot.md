@@ -7,8 +7,9 @@
 ## Git State
 
 - **branch:** `master`
-- **commit hash:** `094307c07e01b333d7dbff4a332b6fcb090b4c27` (short: `094307c`)
-- **working tree status:** clean immediately after initial commit (see **Notes** if a follow-up commit adds this file)
+- **commit hash (HEAD):** `945dd47d25a819ca4afb898671968def2a751931` (short: `945dd47`)
+- **prior commit:** `094307c` — `Initial clean salvage foundation`
+- **working tree status:** clean after commit of this snapshot file
 
 ## Inventory Output
 
