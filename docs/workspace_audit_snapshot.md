@@ -7,9 +7,9 @@
 ## Git State
 
 - **branch:** `master`
-- **commit hash (HEAD):** `945dd47d25a819ca4afb898671968def2a751931` (short: `945dd47`)
-- **prior commit:** `094307c` — `Initial clean salvage foundation`
-- **working tree status:** clean after commit of this snapshot file
+- **HEAD at capture:** run `git -C operator-stack-clean rev-parse HEAD` (this file is version-controlled; the commit that added it is the audit record).
+- **known commits in this lock series:** `094307c` — Initial clean salvage foundation; `945dd47` — docs: workspace audit snapshot; `c7c2e33` — docs: correct git HEAD in workspace audit snapshot; `08bbe8f` — docs: stabilize git state section in audit snapshot.
+- **working tree status:** clean (after final documentation commit)
 
 ## Inventory Output
 
