@@ -12,9 +12,8 @@ APP_NAME = "OperatorLocal"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8092
 BUILD_LABEL = os.environ.get("OPERATOR_DESKTOP_BUILD_LABEL", "desktop-dev")
-WINDOWS_ONEDRIVE_WORKSPACE = Path(
-    r"C:\Users\JBratek\OneDrive - The Hayner Hoyt Corporation\000 - 2 - COST MANAGEMENT\Operator_Data"
-)
+WINDOWS_DEV_WORKSPACE = Path(r"C:\Dev\Operator_Data")
+WINDOWS_OPERATOR_DATA_RELATIVE = Path(r"000 - 2 - COST MANAGEMENT\Operator_Data")
 
 
 def _resource_root() -> Path:
@@ -40,19 +39,54 @@ def _app_data_root() -> Path:
     return (Path.home() / ".local" / "share" / APP_NAME).resolve()
 
 
-def _default_workspace(app_data: Path) -> tuple[Path, str]:
+def _default_workspace(app_data: Path) -> tuple[Path, str, list[str], str]:
     app_data_workspace = app_data / "project_library"
-    if os.name == "nt" and WINDOWS_ONEDRIVE_WORKSPACE.exists():
-        return WINDOWS_ONEDRIVE_WORKSPACE.resolve(), "windows_onedrive"
-    return app_data_workspace.resolve(), "app_data_fallback"
+    attempted = [str(WINDOWS_DEV_WORKSPACE)]
+
+    if os.name == "nt":
+        if WINDOWS_DEV_WORKSPACE.exists():
+            return (
+                WINDOWS_DEV_WORKSPACE.resolve(),
+                "windows_dev",
+                attempted + [str(app_data_workspace)],
+                r"C:\Dev\Operator_Data exists.",
+            )
+
+        for env_name in ("OneDrive", "OneDriveCommercial"):
+            root = os.environ.get(env_name)
+            if not root:
+                continue
+            candidate = Path(root) / WINDOWS_OPERATOR_DATA_RELATIVE
+            attempted.append(str(candidate))
+            if candidate.exists():
+                return (
+                    candidate.resolve(),
+                    f"{env_name}_operator_data",
+                    attempted + [str(app_data_workspace)],
+                    f"{env_name} contains {WINDOWS_OPERATOR_DATA_RELATIVE}.",
+                )
+
+        return (
+            app_data_workspace.resolve(),
+            "app_data_fallback",
+            attempted + [str(app_data_workspace)],
+            "No preferred Windows workspace exists; using app-data fallback.",
+        )
+
+    return (
+        app_data_workspace.resolve(),
+        "app_data_fallback",
+        attempted + [str(app_data_workspace)],
+        "Non-Windows runtime; using app-data fallback.",
+    )
 
 
-def configure_desktop_environment() -> dict[str, Path | str]:
+def configure_desktop_environment() -> dict[str, Any]:
     resource_root = _resource_root()
     app_data = _app_data_root()
     runtime_root = app_data / "runtime" / "operator_ui"
     runs_root = app_data / "runs"
-    project_library, workspace_source = _default_workspace(app_data)
+    project_library, workspace_source, attempted_paths, resolution_reason = _default_workspace(app_data)
 
     for path in (app_data, runtime_root, runs_root, project_library):
         path.mkdir(parents=True, exist_ok=True)
@@ -78,6 +112,8 @@ def configure_desktop_environment() -> dict[str, Path | str]:
         "runs_root": runs_root,
         "project_library": project_library,
         "workspace_source": workspace_source,
+        "attempted_workspace_paths": attempted_paths,
+        "resolution_reason": resolution_reason,
     }
 
 
@@ -88,9 +124,27 @@ from web.operator_local_ui import app as operator_app  # noqa: E402
 app = operator_app.app
 
 
+def _sync_desktop_workspace_config() -> None:
+    operator_app._ensure_dirs()
+    project_library = Path(str(DESKTOP_PATHS["project_library"]))
+    operator_app._save_workspace_config(
+        {
+            "default_workspace_root": str(project_library),
+            "allowed_workspace_roots": [
+                str(project_library),
+                str(Path.home()),
+                str(DESKTOP_PATHS["runs_root"]),
+            ],
+        }
+    )
+
+
+_sync_desktop_workspace_config()
+
+
 @app.get("/api/desktop/health")
 def desktop_health() -> dict[str, Any]:
-    operator_app._ensure_dirs()
+    _sync_desktop_workspace_config()
     cfg = operator_app._load_workspace_config()
     project_library = DESKTOP_PATHS["project_library"]
     workspace_root = str(cfg.get("default_workspace_root") or project_library)
@@ -111,10 +165,9 @@ def desktop_health() -> dict[str, Any]:
         "runtime_root": str(DESKTOP_PATHS["runtime_root"]),
         "runs_root": str(DESKTOP_PATHS["runs_root"]),
         "active_workspace_path": str(workspace_path),
-        "desktop_default_workspace_path": str(project_library),
-        "desktop_default_workspace_source": str(DESKTOP_PATHS["workspace_source"]),
-        "windows_onedrive_workspace_path": str(WINDOWS_ONEDRIVE_WORKSPACE),
-        "windows_onedrive_workspace_exists": WINDOWS_ONEDRIVE_WORKSPACE.exists(),
+        "workspace_resolution_source": str(DESKTOP_PATHS["workspace_source"]),
+        "attempted_workspace_paths": list(DESKTOP_PATHS["attempted_workspace_paths"]),
+        "resolution_reason": str(DESKTOP_PATHS["resolution_reason"]),
         "project_library_accessible": project_library_accessible,
         "project_library_path": str(workspace_path),
         "indexed_workbooks": indexed_workbooks,

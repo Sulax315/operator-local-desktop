@@ -29,15 +29,16 @@ Under that root:
 
 ## Default Workspace Rule
 
-On Windows, the desktop sidecar first checks for Jake's OneDrive Operator data folder:
+On Windows, the desktop sidecar resolves the default Operator Local workspace in this order:
 
-```text
-C:\Users\JBratek\OneDrive - The Hayner Hoyt Corporation\000 - 2 - COST MANAGEMENT\Operator_Data
-```
+1. If `C:\Dev\Operator_Data` exists, use it.
+2. Else, if `%OneDrive%\000 - 2 - COST MANAGEMENT\Operator_Data` exists, use it.
+3. Else, if `%OneDriveCommercial%\000 - 2 - COST MANAGEMENT\Operator_Data` exists, use it.
+4. Else, fall back to `%LOCALAPPDATA%\OperatorLocal\project_library`.
 
-If that folder exists, it becomes the default Operator Local workspace and the Project Library scan uses it. If it does not exist, the desktop app falls back to the app-data workspace at `%LOCALAPPDATA%\OperatorLocal\project_library`. The app does not hard-fail when the OneDrive path is unavailable.
+The app does not hard-fail when `C:\Dev\Operator_Data` or the OneDrive paths are unavailable. Runtime state and run artifacts still remain under the app-data root.
 
-The active workspace path is reported by `/api/desktop/health` as `active_workspace_path` and by `/api/local/workspace` as `workspace_root`.
+The active workspace path is reported by `/api/desktop/health` as `active_workspace_path` and by `/api/local/workspace` as `workspace_root`. Desktop health also reports `workspace_resolution_source`, `attempted_workspace_paths`, and `resolution_reason` for troubleshooting.
 
 ## Local Dev Instructions
 

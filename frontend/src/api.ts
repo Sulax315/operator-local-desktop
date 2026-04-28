@@ -7,10 +7,9 @@ export type DesktopHealth = {
   runtime_root: string;
   runs_root: string;
   active_workspace_path: string;
-  desktop_default_workspace_path: string;
-  desktop_default_workspace_source: string;
-  windows_onedrive_workspace_path: string;
-  windows_onedrive_workspace_exists: boolean;
+  workspace_resolution_source: string;
+  attempted_workspace_paths: string[];
+  resolution_reason: string;
   project_library_accessible: boolean;
   project_library_path: string;
   indexed_workbooks: number;
