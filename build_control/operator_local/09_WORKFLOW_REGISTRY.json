@@ -1,0 +1,130 @@
+{
+  "version": "1.0.1",
+  "workflows": [
+    {
+      "name": "manual_summarize_document",
+      "phase": "Phase 1",
+      "enabled": true,
+      "description": "Summarize one source document into structured markdown and JSON deliverables.",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_report.md"
+      ]
+    },
+    {
+      "name": "manual_compare_documents",
+      "phase": "Phase 1",
+      "enabled": true,
+      "description": "Compare two documents and produce deterministic deltas with review notes.",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_report.md"
+      ]
+    },
+    {
+      "name": "manual_extract_risks",
+      "phase": "Phase 1",
+      "enabled": true,
+      "description": "Extract risks and controls from a single input into structured output.",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_output.json"
+      ]
+    },
+    {
+      "name": "manual_runtime_validation",
+      "phase": "Phase 1",
+      "enabled": true,
+      "description": "Manual Phase 1 runtime validation with durable evidence logs (Ollama + Open WebUI).",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_report.md",
+        "outputs/structured_output.json",
+        "logs/ollama_container_version.clean.log",
+        "logs/ollama_container_run.clean.log",
+        "logs/open_webui_probe.clean.log"
+      ]
+    },
+    {
+      "name": "ci_operator_surface_summary",
+      "phase": "Phase 3",
+      "enabled": true,
+      "description": "CI operator surface summary emitted under runs/_operator_surface/ci_last with canonical envelope artifacts.",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/ci_summary.json",
+        "outputs/ci_health_snapshot.md",
+        "outputs/operator_envelope.json",
+        "outputs/operator_envelope.md"
+      ]
+    },
+    {
+      "name": "wf_summarize_markdown",
+      "phase": "Phase 2",
+      "enabled": true,
+      "description": "Deterministic extractive summary of a markdown document (headings + bullets + executive summary).",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_report.md",
+        "outputs/structured_output.json",
+        "outputs/runner.json"
+      ]
+    },
+    {
+      "name": "wf_compare_markdown",
+      "phase": "Phase 2",
+      "enabled": true,
+      "description": "Deterministic unified diff between two markdown/text documents.",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_report.md",
+        "outputs/structured_output.json",
+        "outputs/runner.json",
+        "outputs/diff.unified.diff"
+      ]
+    },
+    {
+      "name": "wf_extract_risk_lines",
+      "phase": "Phase 2",
+      "enabled": true,
+      "description": "Deterministic extraction of risk-ish lines using keyword heuristics.",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_report.md",
+        "outputs/structured_output.json",
+        "outputs/runner.json"
+      ]
+    },
+    {
+      "name": "wf_financial_markdown_delta",
+      "phase": "Phase 5",
+      "enabled": true,
+      "description": "Deterministic two-period financial markdown delta: unified diff plus diff lines matching financial materiality heuristics.",
+      "required_artifacts": [
+        "manifest.json",
+        "operator_summary.md",
+        "logs/execution_trace.md",
+        "outputs/structured_report.md",
+        "outputs/structured_output.json",
+        "outputs/runner.json",
+        "outputs/diff.unified.diff"
+      ]
+    }
+  ]
+}

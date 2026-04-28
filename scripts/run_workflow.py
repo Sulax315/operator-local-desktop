@@ -69,6 +69,11 @@ def write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def _fmt_money(value: float) -> str:
+    sign = "+" if value >= 0 else "-"
+    return f"{sign}${abs(value):,.0f}"
+
+
 def _workflow_operator_summary(workflow: str, structured: dict) -> tuple[list[str], list[str], list[str]]:
     """Deterministic workflow-specific summary + review guidance for envelope/CLI surfaces."""
     if workflow == "wf_compare_markdown":
@@ -110,11 +115,20 @@ def _workflow_operator_summary(workflow: str, structured: dict) -> tuple[list[st
         audit = int(structured.get("material_diff_audit_line_count", 0))
         items = structured.get("material_diff_items", [])
         has_high = any(str(it.get("tier", "")).lower() == "high" for it in items)
-        found = [
-            f"Primary material items: {primary}",
-            f"Audit-only items: {audit}",
-            f"High-confidence primary exists: {'YES' if has_high else 'NO'}",
-        ]
+        found = []
+        summary_deltas = structured.get("summary_deltas", {})
+        if isinstance(summary_deltas, dict) and isinstance(summary_deltas.get("profit"), (int, float)):
+            found.append(f"Profit change: {_fmt_money(float(summary_deltas['profit']))}")
+        found.extend(
+            [
+                f"Primary material items: {primary}",
+                f"Audit-only items: {audit}",
+                f"High-confidence primary exists: {'YES' if has_high else 'NO'}",
+            ]
+        )
+        top_drivers = [str(x) for x in structured.get("material_diff_lines", [])[:3]]
+        for idx, driver in enumerate(top_drivers, start=1):
+            found.append(f"Top driver {idx}: {driver}")
         review = [
             "Review primary material items first; treat these as claim-level changes.",
             "Use audit-only items for completeness checks, not as primary decision signal.",

@@ -1,0 +1,209 @@
+{
+  "calibration_version": "1.0.0",
+  "generated_utc": "2026-04-21T03:30:00Z",
+  "repo_root": "/srv/operator-stack-clean",
+  "system_identity": "Operator Local",
+  "declared_phase": "Phase 5 — Operational workflow value (ACTIVE); Phase 3 COMPLETE",
+  "phase_status": [
+    {
+      "phase": "Phase 0 — Definition",
+      "status": "PASS",
+      "evidence": [
+        {
+          "type": "governance_pack",
+          "path": "/srv/operator-stack-clean/build_control/operator_local/00_MASTER_PLAN.md"
+        }
+      ],
+      "notes": "Governance artifacts exist under build_control/operator_local/."
+    },
+    {
+      "phase": "Phase 1 — Local Runtime",
+      "status": "PASS",
+      "evidence": [
+        {
+          "type": "phase_gate_report",
+          "path": "/srv/operator-stack-clean/runs/phase1_gate_report.json",
+          "expect": { "pass": true }
+        },
+        {
+          "type": "runtime_validation_run_manifest",
+          "path": "/srv/operator-stack-clean/runs/test_004/manifest.json",
+          "expect": {
+            "workflow_name": "manual_runtime_validation",
+            "status": "completed",
+            "timestamp_utc_prefix": "2026-04-20"
+          }
+        }
+      ],
+      "notes": "Gate pass is recorded in runs/phase1_gate_report.json; runtime evidence story is anchored by runs/test_004."
+    },
+    {
+      "phase": "Phase 2 — Workflow Runner",
+      "status": "PARTIAL",
+      "evidence": [
+        {
+          "type": "deterministic_workflow_runner",
+          "path": "/srv/operator-stack-clean/scripts/run_workflow.py"
+        },
+        {
+          "type": "workflow_handlers",
+          "path": "/srv/operator-stack-clean/scripts/operator_workflows/handlers.py"
+        },
+        {
+          "type": "example_completed_workflow_run_manifest",
+          "path": "/srv/operator-stack-clean/runs/test_005/manifest.json",
+          "expect": {
+            "workflow_name": "wf_summarize_markdown",
+            "status": "completed",
+            "contract_version": "1.2.0",
+            "has_registry_snapshot": true
+          }
+        },
+        {
+          "type": "ci_loop_script",
+          "path": "/srv/operator-stack-clean/scripts/operator_local_ci.sh"
+        }
+      ],
+      "notes": "Runner + registry enforcement + CI loop exist; operational workflow catalog still needs expansion beyond demos."
+    },
+    {
+      "phase": "Phase 3 — Operator Contract (global envelope)",
+      "status": "COMPLETE",
+      "evidence": [
+        {
+          "type": "spec_only",
+          "path": "/srv/operator-stack-clean/build_control/operator_local/14_OPERATOR_RESPONSE_ENVELOPE.md"
+        },
+        {
+          "type": "canonical_envelope_module",
+          "path": "/srv/operator-stack-clean/scripts/operator_envelope.py"
+        },
+        {
+          "type": "first_integration_point",
+          "path": "/srv/operator-stack-clean/scripts/run_workflow.py"
+        },
+        {
+          "type": "ci_validator_wiring",
+          "path": "/srv/operator-stack-clean/scripts/validate_operator_run.py"
+        },
+        {
+          "type": "ci_surface_emitter",
+          "path": "/srv/operator-stack-clean/scripts/operator_emit_ci_summary.py"
+        },
+        {
+          "type": "guarded_snapshot_cycle_wrapper",
+          "path": "/srv/operator-stack-clean/scripts/operator_run_snapshot_cycle.py"
+        },
+        {
+          "type": "guarded_financial_cycle_wrapper",
+          "path": "/srv/operator-stack-clean/scripts/operator_run_financial_cycle.py"
+        },
+        {
+          "type": "guarded_weekly_cycle_wrapper",
+          "path": "/srv/operator-stack-clean/scripts/operator_run_weekly_cycle.py"
+        },
+        {
+          "type": "ci_surface_run_artifacts",
+          "path": "/srv/operator-stack-clean/runs/_operator_surface/ci_last/manifest.json"
+        },
+        {
+          "type": "entrypoint_inventory",
+          "path": "/srv/operator-stack-clean/scripts/operator_entrypoints.json"
+        },
+        {
+          "type": "entrypoint_ci_guard",
+          "path": "/srv/operator-stack-clean/scripts/check_operator_entrypoints.py"
+        },
+        {
+          "type": "unit_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_operator_envelope.py"
+        },
+        {
+          "type": "unit_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_run_workflow_failure_envelope.py"
+        },
+        {
+          "type": "unit_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_operator_snapshot_cycle_envelope.py"
+        },
+        {
+          "type": "unit_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_operator_financial_cycle_envelope.py"
+        },
+        {
+          "type": "unit_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_operator_weekly_cycle_envelope.py"
+        },
+        {
+          "type": "unit_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_wf_compare_markdown_integration.py"
+        }
+      ],
+      "notes": "Phase 3 exit criteria satisfied (COMPLETE): scripts/run_workflow.py, scripts/operator_emit_ci_summary.py, scripts/operator_run_snapshot_cycle.py, scripts/operator_run_financial_cycle.py, and scripts/operator_run_weekly_cycle.py all delegate canonical envelope emission through scripts/operator_envelope.py; scripts/operator_entrypoints.json inventories operator surfaces with zero active_unwrapped entries; scripts/check_operator_entrypoints.py enforces the Phase 3 wrapper coverage bar in CI. make operator-init-run is explicitly internal_only (scaffolding-only) and excluded from envelope debt. New operator-facing CLIs must be added to the inventory and meet the same wrapper rules before being treated as compliant."
+    },
+    {
+      "phase": "Phase 5 — Operational workflow value",
+      "status": "PARTIAL",
+      "evidence": [
+        {
+          "type": "operational_workflow_handlers",
+          "path": "/srv/operator-stack-clean/scripts/operator_workflows/handlers.py"
+        },
+        {
+          "type": "workflow_registry",
+          "path": "/srv/operator-stack-clean/build_control/operator_local/09_WORKFLOW_REGISTRY.json"
+        },
+        {
+          "type": "integration_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_wf_compare_markdown_integration.py"
+        },
+        {
+          "type": "ugly_input_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_phase5_operational_ugly_inputs.py"
+        }
+      ],
+      "notes": "Reference pattern: wf_compare_markdown (init → run_workflow → validate). Third workflow: wf_financial_markdown_delta. wf_extract_risk_lines hardened (schema_version, extraction_rules_id, noise filter). No Phase 4 broker until three workflows are credibly in weekly rotation."
+    },
+    {
+      "phase": "Phase 6 — Hardening",
+      "status": "PARTIAL",
+      "evidence": [
+        {
+          "type": "unit_tests",
+          "path": "/srv/operator-stack-clean/scripts/tests/test_workflow_handlers.py"
+        },
+        {
+          "type": "ci_includes_unittest",
+          "path": "/srv/operator-stack-clean/scripts/operator_local_ci.sh"
+        }
+      ],
+      "notes": "Basic automated tests exist; broader matrix (integration, security, failure modes) still pending."
+    }
+  ],
+  "governance_required_followups": [
+    {
+      "topic": "registry_compatibility_policy",
+      "status": "DOCUMENTED",
+      "path": "/srv/operator-stack-clean/build_control/operator_local/13_REGISTRY_COMPATIBILITY_POLICY.md"
+    },
+    {
+      "topic": "global_operator_response_envelope",
+      "status": "SPECIFIED",
+      "path": "/srv/operator-stack-clean/build_control/operator_local/14_OPERATOR_RESPONSE_ENVELOPE.md"
+    }
+  ],
+  "drift_indicators": {
+    "hard_fail": [
+      "scripts/validate_operator_run.py fails under CI for runs/test_*",
+      "pinned registry_snapshot.sha256 mismatch for contract_version>=1.1.0 completed runs"
+    ],
+    "soft_fail": [
+      "non-run surfaces emit unstructured chat without envelope + artifacts"
+    ]
+  },
+  "course_correct_playbook": [
+    "If registry drift breaks pinned runs: follow 13_REGISTRY_COMPATIBILITY_POLICY.md strategies (archive/re-exec/alias).",
+    "If chat-like drift appears: implement Phase 3 boundary enforcement for 14_OPERATOR_RESPONSE_ENVELOPE.md.",
+    "If workflow catalog is too small: add weekly-used workflows only (no novelty workflows)."
+  ]
+}

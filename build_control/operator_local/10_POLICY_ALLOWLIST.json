@@ -1,0 +1,24 @@
+{
+  "version": "1.0.0",
+  "phase": "Phase 1",
+  "tool_allowlist": [
+    "python3",
+    "ollama",
+    "open-webui",
+    "mkdir",
+    "ls",
+    "date"
+  ],
+  "path_allowlist": [
+    "/srv/operator-stack-clean/build_control/operator_local",
+    "/srv/operator-stack-clean/runs",
+    "/srv/operator-stack-clean/docs",
+    "/srv/operator-stack-clean/scripts"
+  ],
+  "forbidden_behaviors": [
+    "autonomous_agent_execution",
+    "background_unapproved_actions",
+    "non_audited_output_generation",
+    "unapproved_external_api_dependency"
+  ]
+}
