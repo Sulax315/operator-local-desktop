@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/style.css?v=main-stack-2026-04-27" />
+  </head>
+  <body class="owb-premium">
+    <div class="app-shell" id="app-shell">
+    <header class="app-header exec-product-header" id="app-header">
+      <div class="app-header__inner">
+        <div class="app-header__brand">
+          <h1 class="app-title">Operator Workbench</h1>
+          <p class="product-line">{{ product_oneliner }}</p>
+        </div>
+        <div class="app-header__meta" id="app-header-context" aria-live="polite"></div>
+      </div>
+    </header>
+
+    <div class="workspace" id="workspace">
+      <div class="workspace-main">
+        <section class="app-rail project-library project-library--premium" id="project-library" aria-label="Project library">
+          <h3 class="project-library-title">Project library</h3>
+          <p class="subtle project-library-hint" id="project-library-hint">
+            Index approved folders so workbooks appear in Report Builder. Scan refreshes the library.
+          </p>
+          <label class="project-library-search-label subtle" for="project-library-search">Search projects</label>
+          <input
+            type="search"
+            id="project-library-search"
+            class="project-library-search"
+            placeholder="Filter by project ID or name"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <p class="project-library-stale subtle" id="project-library-stale" hidden>Index may be behind the folder on disk — use Scan workspace to refresh.</p>
+          <div class="project-library-unassigned-row" id="project-library-unassigned-row">
+            <label class="project-library-toggle-label subtle">
+              <input type="checkbox" id="show-unassigned-toggle" />
+              Show unassigned reports
+            </label>
+          </div>
+          <ul class="project-library-list" id="project-library-list"></ul>
+          <div class="project-library-actions">
+            <button type="button" class="btn-ghost btn-ghost--secondary" id="project-library-scan" title="Rebuild the project index from the current workspace">Scan workspace</button>
+            <span class="subtle" id="project-library-indexed"></span>
+          </div>
+        </section>
+
+        <section
+          class="panel operator-assistant-panel report-builder-panel app-workspace exec-workspace-surface"
+          id="operator-assistant-panel"
+          aria-label="Report builder and analysis"
+        >
+          <div class="report-builder-canvas first-view-canvas">
+            <div class="workspace-header workspace-header--compact command-card" id="report-workspace-header">
+            <div class="section-header report-builder-herohead report-builder-herohead--compressed">
+              <h2 class="report-builder-title">Report Builder</h2>
+              <p class="report-builder-lede report-builder-lede--secondary">
+                Project → workbooks → run. Indexed files only.
+              </p>
+            </div>
+
+            <div class="report-builder-sticky toolbar report-builder-sticky--compact command-card" id="report-builder-sticky" aria-label="Report context and primary action">
+              <div class="report-builder-context">
+                <p class="report-builder-context-kicker" id="report-builder-context-kicker">Current context</p>
+                <p class="report-builder-context-title" id="report-builder-sticky-project">No project selected</p>
+                <p class="report-builder-context-subtle subtle small" id="report-builder-sticky-sub">
+                  Use the project library, then open workbook selection to choose files.
+                </p>
+              </div>
+              <div class="report-builder-toolbar" role="toolbar" aria-label="Analysis and run">
+                <label for="analysis-type-select" class="report-toolbar-field">
+                  <span class="report-toolbar-label">Analysis type</span>
+                  <select id="analysis-type-select" class="select-toolbar" disabled aria-label="Select analysis type for selected workbooks">
+                    <option value="">Choose…</option>
+                    <option value="current_profit_snapshot">Current Profit Snapshot (1 report)</option>
+                    <option value="projected_profit_breakdown">Projected Profit Breakdown (1 report)</option>
+                    <option value="labor_rate_profit_analysis">Labor Rate Profit Analysis (1 report)</option>
+                    <option value="compare_two_reports">Compare Two Reports (2 selected)</option>
+                    <option value="cost_movement_signals">Cost movement (2 selected)</option>
+                    <option value="trend_across_reports">Trend across reports (3+ selected)</option>
+                  </select>
+                </label>
+                <div class="report-toolbar-actions">
+                  <button
+                    type="button"
+                    class="btn-toolbar-primary"
+                    id="generate-signals-btn"
+                    disabled
+                    aria-label="Run analysis on selected workbooks"
+                  >
+                    Run analysis
+                  </button>
+                </div>
+                <p class="report-toolbar-reason subtle small" id="generate-signals-reason" aria-live="polite">
+                  Select at least one report to enable analysis
+                </p>
+              </div>
+            </div>
+            <p
+              id="status"
+              class="status status-ambient analysis-run-status print-hide-controls"
+              role="status"
+              aria-live="polite"
+            >
+              Ready.
+            </p>
+            </div>
+
+            <p class="subtle small report-builder-enable-hint" id="analysis-enable-hint"></p>
+
+            <details class="details-panel disclosure-panel report-builder-source-collapse" id="report-builder-source-collapse">
+              <summary class="report-builder-source-summary" id="report-builder-source-summary">
+                Workbooks &amp; selection
+              </summary>
+              <div class="details-inner report-builder-source-inner">
+                <p
+                  class="subtle small report-builder-steps report-builder-wizard"
+                  id="report-builder-wizard"
+                  aria-label="Report Builder steps"
+                >
+                  <span class="report-step">Library</span>
+                  <span class="report-step-sep" aria-hidden="true">→</span>
+                  <span class="report-step">Workbooks</span>
+                  <span class="report-step-sep" aria-hidden="true">→</span>
+                  <span class="report-step">Analysis</span>
+                  <span class="report-step-sep" aria-hidden="true">→</span>
+                  <span class="report-step">Generate</span>
+                </p>
+                <div class="report-builder-project-shell" id="report-builder-project-shell" aria-live="polite">
+                  <p class="report-builder-need-project subtle placeholder-block" id="report-builder-need-project">
+                    <span class="placeholder-block__label">No project selected</span>
+                    <span class="placeholder-block__hint">Choose one in the project library. Reports load here automatically.</span>
+                  </p>
+                  <div class="report-builder-project-card" id="report-builder-project-card" hidden>
+                    <div class="report-builder-project-line" id="report-builder-line-project">Project: —</div>
+                    <div class="report-builder-project-line subtle" id="report-builder-line-count">0 reports available</div>
+                    <div class="report-builder-project-line subtle" id="report-builder-line-latest">Latest: —</div>
+                  </div>
+                </div>
+                <div class="report-table-wrap report-table-wrap-dominant">
+                  <h3 class="section-kicker kicker-tight">Workbook list</h3>
+                  <p class="subtle small" id="report-selector-hint">Start with Step 1 in the project library.</p>
+                  <div class="report-select-table-wrap">
+                    <table class="report-select-table data-table" id="report-select-table" hidden>
+                      <thead>
+                        <tr>
+                          <th scope="col" class="col-idx">#</th>
+                          <th scope="col">Include</th>
+                          <th scope="col">Snapshot date</th>
+                          <th scope="col">Workbook file</th>
+                        </tr>
+                      </thead>
+                      <tbody id="report-select-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+
+        <div class="financial-command-surface" id="financial-command-surface" hidden>
+          <details class="details-panel disclosure-panel owb-runtime-diagnostics" id="owb-runtime-diagnostics" hidden>
+            <summary class="owb-runtime-diagnostics-summary">Runtime diagnostics</summary>
+            <pre class="owb-diagnostics-pre" id="owb-diagnostics-body"></pre>
+          </details>
+          <div
+            class="fin-workbench-failure-panel command-card"
+            id="fin-workbench-failure-panel"
+            hidden
+            role="alert"
+            aria-live="assertive"
+          >
+            <h2 class="fin-workbench-failure-panel__title">Financial workbench did not render</h2>
+            <dl class="fin-workbench-failure-panel__dl" id="fin-workbench-failure-dl"></dl>
+            <p class="fin-workbench-failure-panel__next subtle" id="fin-workbench-failure-next"></p>
+          </div>
+          <section
+            class="fin-command-center command-card"
+            id="fin-command-center"
+            aria-label="Financial command center"
+            hidden
+          >
+            <h2 class="fin-command-center__title">Financial command center</h2>
+            <div class="fin-command-center__grid" id="fin-command-center-grid"></div>
+          </section>
+          <div
+            class="financial-workbench-embed"
+            id="financial-workbench-embed"
+            aria-label="Embedded financial workbench"
+          ></div>
+          <div id="financial-signals" class="financial-signals" aria-label="Analysis output" hidden></div>
+        </div>
+
+        <div
+          id="result-workspace"
+          class="result-workspace hidden result-main-stack"
+          aria-hidden="true"
+          data-legacy-comparison-ui="1"
+        >
+          <div class="punch-zone punch-zone--flat command-card" id="punch-zone">
+            <details class="disclosure-panel result-run-ref print-no-run-ref" id="result-run-ref-details">
+              <summary>Profit movement summary</summary>
+            <p class="result-chrome" id="result-chrome">
+              <span class="ref-label">Run ID</span> <code id="run-id"></code>
+              <span class="session-pill status-pill" id="session-view-label"></span>
+            </p>
+            </details>
+
+          <div id="answer-hero" class="answer-hero command-brief-hero command-card muted-answer answer-hero--decision" aria-live="polite">
+            <div class="exec-hero__toolbar" id="exec-hero-toolbar">
+              <span class="exec-hero__badges" id="exec-hero-badges" aria-label="Class tags"></span>
+            </div>
+            <p class="answer-label" id="answer-hero-kicker">Bottom line</p>
+            <div class="answer-profit" id="answer-profit"><span class="amount">—</span></div>
+            <p class="exec-hero__sentence" id="exec-hero-sentence" hidden></p>
+            <p class="answer-driver" id="answer-driver-line">Add files to see profit movement and what is driving it.</p>
+            <p class="answer-implication" id="answer-implication">What to do will appear after the first compare.</p>
+          </div>
+
+          <div id="signal-classification-row" class="signal-classification-row" hidden></div>
+
+          <div
+            id="project-financial-signals-strip"
+            class="project-financial-signals-strip project-financial-command-view"
+            hidden
+            aria-label="Project financial command view"
+          ></div>
+
+          <div class="key-metrics-block key-metrics-block--inline decision-surface-2" id="key-metrics-surface">
+            <h3 class="section-kicker kicker-tight section-kicker--quiet">Component deltas (ranked)</h3>
+            <p id="fin-structured-missing" class="subtle hidden">
+              This compare did not use structured Excel tables; category-level numbers may be limited.
+            </p>
+            <div class="financial-strip financial-strip--ranked" id="financial-cards" aria-label="Ranked component metrics"></div>
+          </div>
+
+          <div id="trade-summary-host" class="trade-summary-host decision-surface-3" hidden aria-label="Trade and category rollup"></div>
+
+          <section class="exec-section exec-driver-attrib" id="driver-spotlight-cards" aria-label="Top driver attribution">
+            <h3 class="section-kicker kicker-tight section-kicker--quiet">Top driver attribution</h3>
+            <ol class="driver-attrib-list" id="driver-attribution-list"></ol>
+          </section>
+
+          <section class="exec-section exec-review-actions" id="exec-review-actions-block" aria-label="What to review next">
+            <h3 class="section-kicker kicker-tight">What to review next</h3>
+            <ul class="exec-review-list" id="review-actions-list"></ul>
+          </section>
+          <section id="assistant-response" class="assistant-response hidden" aria-live="polite"></section>
+          </div>
+
+          <div class="supporting-below" id="supporting-below">
+          <div id="section-drivers" class="driver-anchor">
+            <h3 class="section-kicker kicker-dim">Line detail</h3>
+            <details class="details-panel disclosure-panel" id="details-all-lines" open>
+              <summary>All line movements</summary>
+              <div class="details-inner">
+                <h3 class="panel-heading" id="driver-primary-heading" style="margin-top: 0">Cost-code detail (raw)</h3>
+                <p class="subtle driver-section-count" id="driver-primary-count"></p>
+                <div class="table-filter-summary" id="driver-primary-filter-bar" role="status" aria-live="polite"></div>
+                <div class="driver-tools" id="driver-tools">
+                  <label class="filter-label"
+                    >Filter
+                    <input type="search" id="driver-filter" placeholder="Filter by label" autocomplete="off" />
+                  </label>
+                  <label class="check-inline"
+                    ><input type="checkbox" id="negatives-only" /> Strongest negative moves only</label
+                  >
+                </div>
+                <p class="subtle driver-filter-status" id="driver-filter-status" aria-live="polite"></p>
+                <p class="subtle driver-filter-empty hidden" id="driver-filter-empty" role="status">No rows match the current filters.</p>
+                <p class="subtle driver-filter-empty hidden" id="driver-primary-empty" role="status"></p>
+                <div class="drivers-table-wrap drivers-table-wrap--decision">
+                  <table class="drivers-table data-table drivers-table--decision" id="drivers-primary">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="col-rank">#</th>
+                        <th scope="col">Line / category</th>
+                        <th scope="col">Original</th>
+                        <th scope="col">Current</th>
+                        <th scope="col">Δ ($)</th>
+                        <th scope="col">Δ (%)</th>
+                        <th scope="col">Tier</th>
+                      </tr>
+                    </thead>
+                    <tbody id="drivers-primary-body"></tbody>
+                    <tfoot id="drivers-primary-foot" class="drivers-table__foot" hidden>
+                      <tr>
+                        <td class="foot-label" colspan="2"><span class="foot-total-label">Visible total</span></td>
+                        <td id="foot-sum-orig" class="num">—</td>
+                        <td id="foot-sum-cur" class="num">—</td>
+                        <td id="foot-net-delta" class="num">—</td>
+                        <td id="foot-net-pct" class="num">—</td>
+                        <td class="foot-meta" id="foot-top5-pct" colspan="1">—</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+                <details class="audit-block" id="audit-details">
+                  <summary id="audit-details-summary">Smaller moves</summary>
+                  <p class="subtle driver-section-count" id="driver-audit-count"></p>
+                  <div class="table-filter-summary" id="driver-audit-filter-bar" role="status" aria-live="polite"></div>
+                  <p class="subtle driver-filter-empty hidden" id="driver-audit-empty" role="status"></p>
+                  <div class="drivers-table-wrap drivers-table-wrap--decision">
+                    <table class="drivers-table data-table drivers-table--decision" id="drivers-audit">
+                      <thead>
+                        <tr>
+                          <th scope="col" class="col-rank">#</th>
+                          <th scope="col">Line / category</th>
+                          <th scope="col">Original</th>
+                          <th scope="col">Current</th>
+                          <th scope="col">Δ ($)</th>
+                          <th scope="col">Δ (%)</th>
+                        </tr>
+                      </thead>
+                      <tbody id="drivers-audit-body"></tbody>
+                      <tfoot id="drivers-audit-foot" class="drivers-table__foot" hidden>
+                        <tr>
+                          <td class="foot-label" colspan="2"><span class="foot-total-label">Visible total</span></td>
+                          <td id="audit-foot-sum-orig" class="num">—</td>
+                          <td id="audit-foot-sum-cur" class="num">—</td>
+                          <td id="audit-foot-net-delta" class="num">—</td>
+                          <td id="audit-foot-net-pct" class="num">—</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </details>
+              </div>
+            </details>
+          </div>
+
+          <details class="details-panel disclosure-panel" id="details-insights">
+            <summary>What changed</summary>
+            <div class="details-inner">
+              <ul id="summary-list" class="bullet-list story-list"></ul>
+            </div>
+            <div class="details-inner">
+              <h3 class="panel-heading" style="margin-top: 0">What to look at first</h3>
+              <ul id="review-list" class="bullet-list story-list"></ul>
+            </div>
+          </details>
+
+          <details class="details-panel disclosure-panel" id="details-trust">
+            <summary>How strong the file read is</summary>
+            <div class="details-inner">
+              <div id="extraction-confidence-block" class="confidence-block">
+                <p class="subtle">Shows when both sides are structured Excel tables.</p>
+              </div>
+            </div>
+          </details>
+
+          <details class="details-panel disclosure-panel" id="details-extraction">
+            <summary>Source detail (structured)</summary>
+            <div class="details-inner" id="panel-extraction" data-panel="extraction">
+              <h3 class="panel-heading" style="margin-top: 0">Per file (prior and current)</h3>
+              <div class="extraction-grid" id="extraction-per-side"></div>
+              <h3 class="panel-heading">Structured snapshot</h3>
+              <div class="snapshot-actions print-hide-controls">
+                <button type="button" class="btn-ghost" id="btn-load-snapshots">Load into panes</button>
+              </div>
+              <div class="snapshot-pair">
+                <div>
+                  <h4 class="subhead">Prior</h4>
+                  <pre class="json-pane evidence-card" id="pre-prior-snapshot">(not loaded)</pre>
+                </div>
+                <div>
+                  <h4 class="subhead">Current</h4>
+                  <pre class="json-pane evidence-card" id="pre-current-snapshot">(not loaded)</pre>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="details-panel disclosure-panel" id="details-files">
+            <summary>Source material</summary>
+            <div class="details-inner" id="panel-evidence" data-panel="evidence">
+              <div id="intake-links" class="intake-links hidden">
+                <ul id="intake-link-list" class="bullet-list"></ul>
+              </div>
+              <p id="intake-missing" class="subtle">No intake file list for this session.</p>
+              <h3 class="panel-heading" style="margin-top: 12px">Output files</h3>
+              <ul id="artifact-list" class="bullet-list"></ul>
+            </div>
+          </details>
+
+          <div id="panel-summary" class="hidden" data-panel="summary" aria-hidden="true"></div>
+          </div>
+        </div>
+
+          <form id="operator-task-form" class="hidden" hidden aria-hidden="true" inert></form>
+          <input type="hidden" id="operator-task-input" value="" />
+          <div id="operator-intent-chips" class="hidden" hidden inert></div>
+          <div
+            id="operator-inline-workflow"
+            class="operator-inline-workflow hidden"
+            hidden
+            aria-label="Compare confirmation (legacy)"
+            inert
+          ></div>
+          <div id="operator-task-transcript" class="operator-task-transcript hidden" hidden aria-live="polite" inert></div>
+          <button type="button" id="confirm-compare-btn" class="hidden" hidden inert>Confirm</button>
+        </section>
+
+      <aside class="app-context-rail app-rail rail rail-right rail-review-queue" id="assistant-rail" aria-label="Review queue">
+        <h2 class="rail-title rail-title--queue">Review queue</h2>
+        <p class="subtle small rail-deck" id="review-queue-deck">
+          Ranked actions from the active analysis — reconcile numbers before relying on headline profit.
+        </p>
+        <div id="assistant-idle" class="assistant-idle review-queue-idle">
+          <p class="placeholder-block placeholder-block--compact">
+            <span class="placeholder-block__label">Queue fills after you run analysis</span>
+            <span class="placeholder-block__hint">Select a project, choose reports, run Current Profit Snapshot or a compare — mismatches and missing sources surface here first.</span>
+          </p>
+        </div>
+        <div id="assistant-body" class="assistant-body assistant-body--review-queue hidden">
+          <ol class="review-queue-list" id="review-queue-list" aria-label="Ranked review items"></ol>
+          <p class="visually-hidden" id="assistant-lead" aria-hidden="true"></p>
+          <ul class="visually-hidden" id="assistant-changed" hidden></ul>
+          <ul class="visually-hidden" id="assistant-review" hidden></ul>
+          <p class="visually-hidden" id="assistant-extraction" hidden aria-hidden="true"></p>
+          <ul class="visually-hidden" id="focus-now" hidden aria-hidden="true"></ul>
+          <ul class="visually-hidden" id="why-matters-list" hidden aria-hidden="true"></ul>
+          <ul class="visually-hidden" id="rail-recommended-checks" hidden aria-hidden="true"></ul>
+          <p class="visually-hidden" id="assistant-confidence" hidden aria-hidden="true"></p>
+          <ul class="visually-hidden" id="assistant-ex-notes" hidden aria-hidden="true"></ul>
+          <ul class="visually-hidden" id="assistant-did" hidden aria-hidden="true"></ul>
+          <div class="quick-actions quick-actions--queue" id="quick-actions">
+            <span class="subhead">Jump</span>
+            <div class="qa-row">
+              <button type="button" class="btn-ghost" data-jump="workbench">Financial workbench</button>
+              <button type="button" class="btn-ghost" data-focus="drivers">Line movements</button>
+              <button type="button" class="btn-ghost" data-jump="reconciliation">Reconciliation tab</button>
+            </div>
+            <div class="qa-row">
+              <button type="button" class="btn-ghost" data-jump="extraction">Source detail</button>
+              <button type="button" class="btn-ghost" id="qa-audit">Audit moves</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    </div>
+
+    <script>
+      window.__OWB__ = {
+        DRIVER_PRIMARY_TOP_N: {{ driver_table_primary_n | default(5) }},
+        DRIVER_IMPACT_THRESHOLD: {{ driver_table_impact_usd | default(10000) }},
+        LOAD_ORDER: ["owb-1-entries.js", "owb-2-report-workbench.js", "owb-3-financial-signals.js", "owb-4-app.js"],
+      };
+    </script>
+    <script src="/static/js/owb-1-entries.js" defer></script>
+    <script src="/static/js/owb-2-report-workbench.js" defer></script>
+    <script src="/static/js/owb-3-financial-signals.js" defer></script>
+    <script src="/static/js/owb-4-app.js" defer></script>
+  </body>
+</html>
