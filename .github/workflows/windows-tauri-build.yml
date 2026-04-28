@@ -134,9 +134,17 @@ jobs:
         with:
           workspaces: src-tauri
 
+      - name: Diagnose Tauri config path
+        shell: bash
+        run: |
+          pwd
+          ls -la
+          ls -la src-tauri
+          test -f src-tauri/tauri.conf.json
+
       - name: Build Tauri app
         working-directory: frontend
-        run: npm run tauri build -- --config ../src-tauri/tauri.conf.json --bundles nsis
+        run: npm run tauri build -- --config "${{ github.workspace }}/src-tauri/tauri.conf.json" --bundles nsis
 
       - name: Diagnose Tauri bundle output
         if: always()
