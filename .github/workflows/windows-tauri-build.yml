@@ -143,8 +143,12 @@ jobs:
           test -f src-tauri/tauri.conf.json
 
       - name: Build Tauri app
-        working-directory: frontend
-        run: npm run tauri build -- --config "${{ github.workspace }}/src-tauri/tauri.conf.json" --bundles nsis
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+          cd ..
+          npx tauri build --bundles nsis
 
       - name: Diagnose Tauri bundle output
         if: always()
