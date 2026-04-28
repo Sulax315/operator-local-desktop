@@ -35,6 +35,7 @@ function renderProjectLibrary(payload) {
   const needsScan = !!pi.needs_scan;
   const cap = pi.scan_file_cap != null ? String(pi.scan_file_cap) : "";
   const mayStale = !!pi.index_may_be_stale;
+  const workspaceRoot = payload && payload.workspace_root ? String(payload.workspace_root) : "Not configured";
   if (staleEl) {
     if (mayStale) {
       staleEl.removeAttribute("hidden");
@@ -48,11 +49,11 @@ function renderProjectLibrary(payload) {
     if (payload && payload.resolvable === false) {
       hint.textContent = "No approved workspace is configured for this server. Confirm the deployment root, then scan.";
     } else if (needsScan && nIdx === 0) {
-      hint.textContent = "Files may exist on disk but the project index is empty. Click Scan workspace to index workbooks (same roots the operator is allowed to read).";
+      hint.textContent = "No workbooks found in active workspace. Confirm the folder contains .xlsx/.xlsm/.xls files, then scan again.";
     } else if (projects.length > 1) {
       hint.textContent = "Multiple projects in the index — select one to load monthly reports in the Report Builder.";
     } else {
-            hint.textContent = "Indexed workbooks power the Report Builder and analysis output.";
+      hint.textContent = "Indexed workbooks power the Report Builder and analysis output.";
     }
   }
   if (idxEl) {
@@ -60,13 +61,13 @@ function renderProjectLibrary(payload) {
     const lastScanned = ia ? `Last scanned: ${ia}` : "Not indexed yet";
     const capBit = cap ? ` · cap ${cap} Excel files/scan` : "";
     if (nIdx > 0 && liveN > 0) {
-      idxEl.textContent = `${lastScanned} · ${nIdx} in index, ${liveN} on disk${capBit}`;
+      idxEl.textContent = `Active workspace: ${workspaceRoot} · ${lastScanned} · Indexed workbooks: ${nIdx} · ${liveN} on disk${capBit}`;
     } else if (nIdx > 0) {
-      idxEl.textContent = `${lastScanned} · ${nIdx} workbook(s) in index${capBit}`;
+      idxEl.textContent = `Active workspace: ${workspaceRoot} · ${lastScanned} · Indexed workbooks: ${nIdx}${capBit}`;
     } else if (liveN > 0) {
-      idxEl.textContent = `${lastScanned} · ${liveN} on disk (index empty)${capBit}`;
+      idxEl.textContent = `Active workspace: ${workspaceRoot} · ${lastScanned} · Indexed workbooks: 0 · ${liveN} on disk${capBit}`;
     } else {
-      idxEl.textContent = (ia ? `${lastScanned}` : "Not indexed yet") + capBit;
+      idxEl.textContent = `Active workspace: ${workspaceRoot} · ${lastScanned} · Indexed workbooks: 0${capBit}`;
     }
   }
   if (projects.length === 0) {
@@ -75,7 +76,7 @@ function renderProjectLibrary(payload) {
     li.textContent =
       nIdx || (payload && payload.readiness && payload.readiness.workbook_count)
         ? "No project IDs found in file paths yet. Filenames with numeric project codes (e.g. 219128) improve grouping. Unlabeled files still appear as a group when present."
-        : "No workbooks under this workspace. Add files under the approved root, then scan.";
+        : "No workbooks found in active workspace. Confirm the folder contains .xlsx/.xlsm/.xls files, then scan again.";
     list.appendChild(li);
   } else {
     projects.forEach((p) => {

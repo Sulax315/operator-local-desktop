@@ -27,6 +27,18 @@ Under that root:
 - `runs/` stores generated run artifacts.
 - `project_library/` is the default local project library.
 
+## Default Workspace Rule
+
+On Windows, the desktop sidecar first checks for Jake's OneDrive Operator data folder:
+
+```text
+C:\Users\JBratek\OneDrive - The Hayner Hoyt Corporation\000 - 2 - COST MANAGEMENT\Operator_Data
+```
+
+If that folder exists, it becomes the default Operator Local workspace and the Project Library scan uses it. If it does not exist, the desktop app falls back to the app-data workspace at `%LOCALAPPDATA%\OperatorLocal\project_library`. The app does not hard-fail when the OneDrive path is unavailable.
+
+The active workspace path is reported by `/api/desktop/health` as `active_workspace_path` and by `/api/local/workspace` as `workspace_root`.
+
 ## Local Dev Instructions
 
 From the repo root:

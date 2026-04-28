@@ -12,6 +12,9 @@ APP_NAME = "OperatorLocal"
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8092
 BUILD_LABEL = os.environ.get("OPERATOR_DESKTOP_BUILD_LABEL", "desktop-dev")
+WINDOWS_ONEDRIVE_WORKSPACE = Path(
+    r"C:\Users\JBratek\OneDrive - The Hayner Hoyt Corporation\000 - 2 - COST MANAGEMENT\Operator_Data"
+)
 
 
 def _resource_root() -> Path:
@@ -37,12 +40,19 @@ def _app_data_root() -> Path:
     return (Path.home() / ".local" / "share" / APP_NAME).resolve()
 
 
-def configure_desktop_environment() -> dict[str, Path]:
+def _default_workspace(app_data: Path) -> tuple[Path, str]:
+    app_data_workspace = app_data / "project_library"
+    if os.name == "nt" and WINDOWS_ONEDRIVE_WORKSPACE.exists():
+        return WINDOWS_ONEDRIVE_WORKSPACE.resolve(), "windows_onedrive"
+    return app_data_workspace.resolve(), "app_data_fallback"
+
+
+def configure_desktop_environment() -> dict[str, Path | str]:
     resource_root = _resource_root()
     app_data = _app_data_root()
     runtime_root = app_data / "runtime" / "operator_ui"
     runs_root = app_data / "runs"
-    project_library = app_data / "project_library"
+    project_library, workspace_source = _default_workspace(app_data)
 
     for path in (app_data, runtime_root, runs_root, project_library):
         path.mkdir(parents=True, exist_ok=True)
@@ -67,6 +77,7 @@ def configure_desktop_environment() -> dict[str, Path]:
         "runtime_root": runtime_root,
         "runs_root": runs_root,
         "project_library": project_library,
+        "workspace_source": workspace_source,
     }
 
 
@@ -99,6 +110,11 @@ def desktop_health() -> dict[str, Any]:
         "app_data_path": str(DESKTOP_PATHS["app_data"]),
         "runtime_root": str(DESKTOP_PATHS["runtime_root"]),
         "runs_root": str(DESKTOP_PATHS["runs_root"]),
+        "active_workspace_path": str(workspace_path),
+        "desktop_default_workspace_path": str(project_library),
+        "desktop_default_workspace_source": str(DESKTOP_PATHS["workspace_source"]),
+        "windows_onedrive_workspace_path": str(WINDOWS_ONEDRIVE_WORKSPACE),
+        "windows_onedrive_workspace_exists": WINDOWS_ONEDRIVE_WORKSPACE.exists(),
         "project_library_accessible": project_library_accessible,
         "project_library_path": str(workspace_path),
         "indexed_workbooks": indexed_workbooks,

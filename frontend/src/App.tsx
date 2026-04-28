@@ -98,6 +98,7 @@ function App() {
             <span>
               Library: {state.health.project_library_accessible ? "accessible" : "missing"}
             </span>
+            <span>Workspace: {state.health.active_workspace_path}</span>
             <span>Build: {state.health.build_label}</span>
           </div>
         ) : (
