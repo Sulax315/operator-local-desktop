@@ -1,0 +1,175 @@
+{
+  "version": "1",
+  "description": "Phase 5 evaluation + regression manifest: realistic-ish operator markdown. Paths are relative to phase5_eval_corpus/.",
+  "corpus_root": "phase5_eval_corpus",
+  "cases": [
+    {
+      "id": "compare_c01_meaningful_edit",
+      "workflow": "wf_compare_markdown",
+      "inputs": ["compare/c01_left.md", "compare/c01_right.md"],
+      "operator_usefulness_notes": "Substantive narrative change under stable headings; diff should be non-empty and bounded.",
+      "expect": { "diff_empty": false, "min_hunk_changes": 2, "max_unified_diff_chars": 12000 }
+    },
+    {
+      "id": "compare_c02_whitespace_churn",
+      "workflow": "wf_compare_markdown",
+      "inputs": ["compare/c02_left.md", "compare/c02_right.md"],
+      "operator_usefulness_notes": "Trailing spaces and blank lines only; expect small or empty diff depending on unified_diff behavior.",
+      "expect": { "diff_empty": true, "max_hunk_changes": 0 }
+    },
+    {
+      "id": "compare_c03_heading_shuffle",
+      "workflow": "wf_compare_markdown",
+      "inputs": ["compare/c03_left.md", "compare/c03_right.md"],
+      "operator_usefulness_notes": "Renumbered headings, same body; should show heading-line churn even if body identical.",
+      "expect": { "diff_empty": false, "min_hunk_changes": 1 }
+    },
+    {
+      "id": "compare_c04_new_section",
+      "workflow": "wf_compare_markdown",
+      "inputs": ["compare/c04_left.md", "compare/c04_right.md"],
+      "operator_usefulness_notes": "New 'Escalations' section; structural signal matters for weekly triage.",
+      "expect": { "diff_empty": false, "min_hunk_changes": 4 }
+    },
+    {
+      "id": "compare_c05_table_row",
+      "workflow": "wf_compare_markdown",
+      "inputs": ["compare/c05_left.md", "compare/c05_right.md"],
+      "operator_usefulness_notes": "Single KPI row change in a markdown table.",
+      "expect": { "diff_empty": false, "min_hunk_changes": 2 }
+    },
+    {
+      "id": "risk_r01_weekly_mix",
+      "workflow": "wf_extract_risk_lines",
+      "inputs": ["risk/r01_weekly_notes.md"],
+      "operator_usefulness_notes": "Mix of vague risk language, real blocker, and noise; want true blocker, not heading stutter.",
+      "expect": { "min_matches": 1, "max_matches": 25, "must_contain_substr": "vendor API" }
+    },
+    {
+      "id": "risk_r02_heading_only",
+      "workflow": "wf_extract_risk_lines",
+      "inputs": ["risk/r02_heading_only.md"],
+      "operator_usefulness_notes": "Heading-only lines should be suppressed.",
+      "expect": { "max_matches": 0 }
+    },
+    {
+      "id": "risk_r03_one_substantive",
+      "workflow": "wf_extract_risk_lines",
+      "inputs": ["risk/r03_one_substantive.md"],
+      "operator_usefulness_notes": "Single long mitigation line with digits and context.",
+      "expect": { "min_matches": 1, "must_contain_substr": "RTO" }
+    },
+    {
+      "id": "risk_r04_issue_without_keyword",
+      "workflow": "wf_extract_risk_lines",
+      "inputs": ["risk/r04_no_keyword.md"],
+      "operator_usefulness_notes": "Operational issue line without risk lexicon; expect zero (document limitation / FN tradeoff).",
+      "expect": { "max_matches": 0 }
+    },
+    {
+      "id": "risk_r05_action_items",
+      "workflow": "wf_extract_risk_lines",
+      "inputs": ["risk/r05_actions.md"],
+      "operator_usefulness_notes": "Multiple actionable risk lines; bounded list.",
+      "expect": { "min_matches": 2, "max_matches": 30 }
+    },
+    {
+      "id": "financial_f01_revenue_margin",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f01_prior.md", "financial/f01_current.md"],
+      "operator_usefulness_notes": "Clear $ and % movement; core happy path.",
+      "expect": {
+        "diff_empty": false,
+        "min_material_lines": 1,
+        "must_material_substr": "Revenue"
+      }
+    },
+    {
+      "id": "financial_f02_immaterial_wording",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f02_prior.md", "financial/f02_current.md"],
+      "operator_usefulness_notes": "Qualitative cash commentary without digits; tests over-capture on weak tokens.",
+      "expect": { "diff_empty": false, "max_material_lines": 0 }
+    },
+    {
+      "id": "financial_f03_percent_noise",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f03_prior.md", "financial/f03_current.md"],
+      "operator_usefulness_notes": "Non-financial '100% done' style churn; should not flood material lines.",
+      "expect": { "diff_empty": false, "max_material_lines": 0 }
+    },
+    {
+      "id": "financial_f04_guidance",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f04_prior.md", "financial/f04_current.md"],
+      "operator_usefulness_notes": "Revenue band change with $ in body (heading may be unchanged and absent from diff).",
+      "expect": { "min_material_lines": 1, "must_material_substr": "revenue" }
+    },
+    {
+      "id": "financial_f05_url_dollar",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f05_prior.md", "financial/f05_current.md"],
+      "operator_usefulness_notes": "Markdown links containing $ (URLs); heuristic should not treat as financial movement.",
+      "expect": { "max_material_lines": 0 }
+    },
+    {
+      "id": "financial_f06_margin_narrative_no_numbers",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f06_prior.md", "financial/f06_current.md"],
+      "operator_usefulness_notes": "Adversarial: operating-margin language without figures; expect audit-only, not primary.",
+      "expect": {
+        "diff_empty": false,
+        "max_material_lines": 0,
+        "min_audit_lines": 1,
+        "must_audit_substr": "Operating margin"
+      }
+    },
+    {
+      "id": "financial_f07_version_ticket_churn",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f07_prior.md", "financial/f07_current.md"],
+      "operator_usefulness_notes": "Adversarial: semver and ticket-id churn without finance tokens.",
+      "expect": { "diff_empty": false, "max_material_lines": 0, "max_audit_lines": 0 }
+    },
+    {
+      "id": "financial_f08_qualitative_revenue_language",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f08_prior.md", "financial/f08_current.md"],
+      "operator_usefulness_notes": "Adversarial: revenue vocabulary with no numbers; under-report (no primary, no audit).",
+      "expect": { "diff_empty": false, "max_material_lines": 0, "max_audit_lines": 0 }
+    },
+    {
+      "id": "financial_f09_nps_percent_noise",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f09_prior.md", "financial/f09_current.md"],
+      "operator_usefulness_notes": "Adversarial: YoY + % inside engagement/NPS context; metric pollution guard.",
+      "expect": { "diff_empty": false, "max_material_lines": 0, "max_audit_lines": 0 }
+    },
+    {
+      "id": "financial_f10_margin_compressed_yoy_no_numbers",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f10_prior.md", "financial/f10_current.md"],
+      "operator_usefulness_notes": "Targeted FN case: margin compressed YoY without figures should stay audit-only.",
+      "expect": {
+        "diff_empty": false,
+        "max_material_lines": 0,
+        "min_audit_lines": 1,
+        "must_audit_substr": "Operating margin compressed YoY"
+      }
+    },
+    {
+      "id": "financial_f11_guidance_cut_slightly_no_numbers",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f11_prior.md", "financial/f11_current.md"],
+      "operator_usefulness_notes": "Targeted FN case: qualitative guidance cut without numbers is intentionally ignored.",
+      "expect": { "diff_empty": false, "max_material_lines": 0, "max_audit_lines": 0 }
+    },
+    {
+      "id": "financial_f12_revenue_headwinds_expected",
+      "workflow": "wf_financial_markdown_delta",
+      "inputs": ["financial/f12_prior.md", "financial/f12_current.md"],
+      "operator_usefulness_notes": "Targeted FN case: revenue headwinds narrative without quantified movement is ignored.",
+      "expect": { "diff_empty": false, "max_material_lines": 0, "max_audit_lines": 0 }
+    }
+  ]
+}

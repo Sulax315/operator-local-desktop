@@ -1,0 +1,188 @@
+{
+  "version": "1.0.4",
+  "phase_3_wrapper_coverage_bar": [
+    "scripts/run_workflow.py",
+    "scripts/operator_emit_ci_summary.py",
+    "scripts/operator_run_snapshot_cycle.py",
+    "scripts/operator_run_financial_cycle.py",
+    "scripts/operator_run_weekly_cycle.py",
+    "Makefile"
+  ],
+  "entrypoints": [
+    {
+      "id": "operator_run",
+      "path": "scripts/operator_run.py",
+      "kind": "python",
+      "status": "wrapped",
+      "notes": "Operator CLI entrypoint; delegates to init_operator_run + run_workflow + validate_operator_run and prints envelope-derived summary."
+    },
+    {
+      "id": "operator_shell_wrapper",
+      "path": "operator",
+      "kind": "shell",
+      "status": "wrapped",
+      "notes": "User-facing executable wrapper that delegates to scripts/operator_run.py."
+    },
+    {
+      "id": "run_workflow",
+      "path": "scripts/run_workflow.py",
+      "kind": "python",
+      "status": "wrapped",
+      "notes": "Workflow runner; emits canonical envelope artifacts for contract_version>=1.2.0 completed/failed runs."
+    },
+    {
+      "id": "operator_emit_ci_summary",
+      "path": "scripts/operator_emit_ci_summary.py",
+      "kind": "python",
+      "status": "wrapped",
+      "notes": "CI operator surface summary; emits durable artifacts under runs/_operator_surface/ci_last/ including envelope."
+    },
+    {
+      "id": "operator_run_snapshot_cycle",
+      "path": "scripts/operator_run_snapshot_cycle.py",
+      "kind": "python",
+      "status": "wrapped",
+      "notes": "OpenClaw-ready guarded snapshot cycle; emits JSON audit plus canonical envelope under runs/_operator_surface/snapshot_cycle_last/."
+    },
+    {
+      "id": "operator_run_financial_cycle",
+      "path": "scripts/operator_run_financial_cycle.py",
+      "kind": "python",
+      "status": "wrapped",
+      "notes": "Financial control-loop wrapper; emits JSON audit plus canonical envelope under runs/_operator_surface/financial_cycle_last/."
+    },
+    {
+      "id": "operator_run_weekly_cycle",
+      "path": "scripts/operator_run_weekly_cycle.py",
+      "kind": "python",
+      "status": "wrapped",
+      "notes": "Weekly refresh wrapper; emits JSON audit plus canonical envelope under runs/_operator_surface/weekly_cycle_last/."
+    },
+    {
+      "id": "make_operator",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "wrapped",
+      "notes": "Thin target; delegates only to wrapped scripts/operator_run.py."
+    },
+    {
+      "id": "make_operator_init_run",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "internal_only",
+      "notes": "Scaffolding-only (Option A): thin target over scripts/init_operator_run.py. Creates runs/ skeleton and manifest template only — not an operator completion or envelope surface. Excluded from Phase 3 envelope completion criteria; not counted as active_unwrapped debt."
+    },
+    {
+      "id": "make_operator_run_workflow",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "wrapped",
+      "notes": "Thin target; delegates only to wrapped scripts/run_workflow.py (enforced in CI)."
+    },
+    {
+      "id": "make_operator_ci_summary",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "wrapped",
+      "notes": "Thin target; delegates only to wrapped scripts/operator_emit_ci_summary.py (enforced in CI)."
+    },
+    {
+      "id": "make_operator_validate_run",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "internal_only",
+      "notes": "Contract validation helper for runs/; not an operator narrative emitter."
+    },
+    {
+      "id": "make_operator_phase1_gate",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "internal_only",
+      "notes": "Phase gate JSON to stdout; CI signal, not operator envelope surface."
+    },
+    {
+      "id": "make_operator_run_index",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "internal_only",
+      "notes": "Run index builder for tooling/CI."
+    },
+    {
+      "id": "make_operator_test",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "internal_only",
+      "notes": "Unit test discovery for scripts/tests."
+    },
+    {
+      "id": "make_operator_check_entrypoints",
+      "path": "Makefile",
+      "kind": "make",
+      "status": "internal_only",
+      "notes": "Meta-check for inventory and static delegation needles; not operator output."
+    },
+    {
+      "id": "run_full_regression",
+      "path": "scripts/run_full_regression.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Single regression gate runner (tests + eval pack + FN audit + CLI smoke)."
+    },
+    {
+      "id": "operator_local_ci",
+      "path": "scripts/operator_local_ci.sh",
+      "kind": "shell",
+      "status": "internal_only",
+      "notes": "Local/CI harness; orchestrates validators and wrapped emitters."
+    },
+    {
+      "id": "check_operator_entrypoints",
+      "path": "scripts/check_operator_entrypoints.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Inventory and static delegation enforcement."
+    },
+    {
+      "id": "init_operator_run",
+      "path": "scripts/init_operator_run.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Run scaffold creation; templates only, not canonical operator response surface."
+    },
+    {
+      "id": "validate_operator_run",
+      "path": "scripts/validate_operator_run.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Contract enforcement over runs/ trees."
+    },
+    {
+      "id": "check_phase1_gate",
+      "path": "scripts/check_phase1_gate.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Phase gate evaluator; JSON artifact for CI."
+    },
+    {
+      "id": "operator_local_health_report",
+      "path": "scripts/operator_local_health_report.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Markdown input to CI surface emitter; not a standalone envelope surface."
+    },
+    {
+      "id": "build_run_index",
+      "path": "scripts/build_run_index.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Indexing utility for runs/."
+    },
+    {
+      "id": "check_operator_policy",
+      "path": "scripts/check_operator_policy.py",
+      "kind": "python",
+      "status": "internal_only",
+      "notes": "Allowlist policy checks over run artifacts."
+    }
+  ]
+}

@@ -1,2 +1,36 @@
 # Local secrets — never commit
 .env
+
+# VM-local Metabase publisher credentials (examples stay committed as *.example)
+config/metabase_publish.env
+config/metabase_publish.financial.env
+
+# Runtime upload intake artifacts
+runtime/upload_intake/
+
+# Desktop build dependencies and artifacts
+frontend/node_modules/
+frontend/dist/
+src-tauri/target/
+src-tauri/binaries/*
+!src-tauri/binaries/.gitkeep
+dist/
+build/
+*.spec
+*.exe
+*.msi
+*.nsis.zip
+
+# Python virtualenvs, caches, and packaged runtime files
+.venv/
+.venv-operator-ui/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local Operator Desktop app data
+runtime/operator_ui/
+runs/
+*.db
+*.sqlite
+*.sqlite3

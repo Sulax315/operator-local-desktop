@@ -1,0 +1,39 @@
+{
+  "$schema": "../frontend/node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Operator Local",
+  "version": "0.1.0",
+  "identifier": "com.operatorlocal.desktop",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../frontend/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Operator Local",
+        "width": 1440,
+        "height": 960,
+        "minWidth": 960,
+        "minHeight": 700
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' http://127.0.0.1:8092; frame-src http://127.0.0.1:8092; img-src 'self' http://127.0.0.1:8092 data:; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "externalBin": ["binaries/backend_app"],
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}

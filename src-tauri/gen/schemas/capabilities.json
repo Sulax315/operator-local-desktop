@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default desktop capability set for Operator Local.","local":true,"windows":["main"],"permissions":["core:default",{"identifier":"shell:allow-execute","allow":[{"args":true,"name":"binaries/backend_app","sidecar":true}]}]}}

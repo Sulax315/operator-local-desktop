@@ -1,0 +1,66 @@
+{
+  "version": "1",
+  "description": "Internal false-negative audit for wf_financial_markdown_delta. Tracks expected material lines and where they land (primary/audit/missed).",
+  "workflow": "wf_financial_markdown_delta",
+  "corpus_root": "phase5_eval_corpus/financial",
+  "cases": [
+    {
+      "id": "fn_f01_numeric_revenue_margin",
+      "inputs": ["f01_prior.md", "f01_current.md"],
+      "expected_material_lines": [
+        { "contains": "Revenue $10.6M; gross margin 39%.", "expected_destination": "primary" },
+        { "contains": "Revenue $10.2M; gross margin 41%.", "expected_destination": "primary" }
+      ]
+    },
+    {
+      "id": "fn_f04_guidance_band_with_numbers",
+      "inputs": ["f04_prior.md", "f04_current.md"],
+      "expected_material_lines": [
+        { "contains": "revenue between $510M and $535M", "expected_destination": "primary" },
+        { "contains": "revenue between $500M and $520M", "expected_destination": "primary" }
+      ]
+    },
+    {
+      "id": "fn_f06_margin_narrative_no_numbers",
+      "inputs": ["f06_prior.md", "f06_current.md"],
+      "expected_material_lines": [
+        { "contains": "Operating margin compressed", "expected_destination": "audit" }
+      ]
+    },
+    {
+      "id": "fn_f10_margin_compressed_yoy_no_numbers",
+      "inputs": ["f10_prior.md", "f10_current.md"],
+      "expected_material_lines": [
+        { "contains": "Operating margin compressed YoY", "expected_destination": "audit" }
+      ]
+    },
+    {
+      "id": "fn_f11_guidance_cut_slightly_no_numbers",
+      "inputs": ["f11_prior.md", "f11_current.md"],
+      "expected_material_lines": [
+        { "contains": "Guidance cut slightly", "expected_destination": "ignore" }
+      ]
+    },
+    {
+      "id": "fn_f12_revenue_headwinds_no_numbers",
+      "inputs": ["f12_prior.md", "f12_current.md"],
+      "expected_material_lines": [
+        { "contains": "Revenue headwinds are expected", "expected_destination": "ignore" }
+      ]
+    },
+    {
+      "id": "fn_f08_qualitative_revenue_language",
+      "inputs": ["f08_prior.md", "f08_current.md"],
+      "expected_material_lines": [
+        { "contains": "revenue narrative improved", "expected_destination": "ignore" }
+      ]
+    },
+    {
+      "id": "fn_f09_nps_yoy_percent",
+      "inputs": ["f09_prior.md", "f09_current.md"],
+      "expected_material_lines": [
+        { "contains": "YoY we saw a 14% improvement in NPS", "expected_destination": "ignore" }
+      ]
+    }
+  ]
+}
