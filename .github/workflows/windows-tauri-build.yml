@@ -148,7 +148,7 @@ jobs:
           npm ci
           npm run build
           cd ..
-          npx tauri build --bundles nsis
+          ./frontend/node_modules/.bin/tauri build --bundles nsis
 
       - name: Diagnose Tauri bundle output
         if: always()
