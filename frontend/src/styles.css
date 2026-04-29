@@ -1,6 +1,6 @@
 :root {
-  color: #18212f;
-  background: #eef2f7;
+  color: #132033;
+  background: #e9eef5;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -12,23 +12,28 @@
 
 body {
   margin: 0;
-  min-width: 960px;
+  min-width: 1120px;
 }
 
 .desktop-shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0, rgba(233, 238, 245, 0) 92px),
+    #e9eef5;
 }
 
 .desktop-status {
   align-items: center;
-  background: #ffffff;
-  border-bottom: 1px solid #d9e0ea;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #cfd8e6;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 10px 24px rgba(15, 23, 42, 0.06);
   display: flex;
   gap: 24px;
   justify-content: space-between;
-  padding: 10px 16px;
+  min-height: 46px;
+  padding: 7px 14px 7px 18px;
 }
 
 .desktop-status strong,
@@ -37,17 +42,45 @@ body {
 }
 
 .muted {
-  color: #697386;
+  color: #5f6f85;
   font-size: 12px;
+  letter-spacing: 0.01em;
 }
 
 .status-grid {
-  color: #4b5565;
+  align-items: center;
+  color: #435168;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   font-size: 12px;
-  gap: 8px 14px;
+  gap: 6px 10px;
   justify-content: flex-end;
+  min-width: 0;
+  max-width: 72vw;
+  white-space: nowrap;
+}
+
+.status-pill {
+  background: #eef3f8;
+  border: 1px solid #d7e0eb;
+  border-radius: 999px;
+  color: #334155;
+  line-height: 1;
+  padding: 5px 8px;
+}
+
+.status-pill--ok {
+  background: #e9f8ef;
+  border-color: #b9e2c7;
+  color: #166534;
+  font-weight: 650;
+}
+
+.workspace-path {
+  color: #526176;
+  max-width: min(44vw, 620px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .workbench-frame {
@@ -58,7 +91,7 @@ body {
 .workbench-frame iframe {
   border: 0;
   display: block;
-  height: calc(100vh - 57px);
+  height: calc(100vh - 47px);
   width: 100%;
 }
 

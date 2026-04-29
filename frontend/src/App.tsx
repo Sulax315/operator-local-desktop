@@ -89,16 +89,18 @@ function App() {
       <header className="desktop-status">
         <div>
           <strong>Operator Local Desktop</strong>
-          <span className="muted">Desktop delivery infrastructure</span>
+          <span className="muted">Local financial command center</span>
         </div>
         {state.status === "ready" ? (
           <div className="status-grid" aria-label="Desktop health">
-            <span>Backend: available</span>
-            <span>App data: {state.health.app_data_initialized ? "ready" : "not ready"}</span>
+            <span className="status-pill status-pill--ok">Backend available</span>
+            <span className="status-pill">App data {state.health.app_data_initialized ? "ready" : "not ready"}</span>
             <span>
               Library: {state.health.project_library_accessible ? "accessible" : "missing"}
             </span>
-            <span>Workspace: {state.health.active_workspace_path}</span>
+            <span className="workspace-path" title={state.health.active_workspace_path}>
+              Workspace: {state.health.active_workspace_path}
+            </span>
             <span>Build: {state.health.build_label}</span>
           </div>
         ) : (
