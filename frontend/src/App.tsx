@@ -86,30 +86,6 @@ function App() {
 
   return (
     <main className="desktop-shell">
-      <header className="desktop-status">
-        <div>
-          <strong>Operator Local Desktop</strong>
-          <span className="muted">Local financial command center</span>
-        </div>
-        {state.status === "ready" ? (
-          <div className="status-grid" aria-label="Desktop health">
-            <span className="status-pill status-pill--ok">Backend available</span>
-            <span className="status-pill">App data {state.health.app_data_initialized ? "ready" : "not ready"}</span>
-            <span>
-              Library: {state.health.project_library_accessible ? "accessible" : "missing"}
-            </span>
-            <span className="workspace-path" title={state.health.active_workspace_path}>
-              Workspace: {state.health.active_workspace_path}
-            </span>
-            <span>Build: {state.health.build_label}</span>
-          </div>
-        ) : (
-          <div className="status-grid">
-            <span>{state.message}</span>
-          </div>
-        )}
-      </header>
-
       {state.status === "ready" ? (
         <section className="workbench-frame" aria-label="Operator Workbench">
           <iframe title="Operator Workbench" src={workbenchUrl} />

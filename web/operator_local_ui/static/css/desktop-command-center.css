@@ -611,6 +611,12 @@ body.owb-premium,
   padding: 10px clamp(12px, 1.6vw, 24px) 24px !important;
 }
 
+.workspace.investigation-mode > #investigation-commandbar,
+.workspace.investigation-mode > #investigation-layout,
+.workspace.investigation-mode > #investigation-workbench {
+  display: block;
+}
+
 .workspace.investigation-mode > .workspace-main {
   display: none !important;
 }

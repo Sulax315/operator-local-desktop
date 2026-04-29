@@ -10,7 +10,7 @@
   </head>
   <body class="owb-premium">
     <div class="app-shell" id="app-shell">
-    <header class="app-header exec-product-header" id="app-header">
+    <header class="app-header exec-product-header" id="app-header" hidden aria-hidden="true">
       <div class="app-header__inner">
         <div class="app-header__brand">
           <h1 class="app-title">Operator Workbench</h1>
@@ -20,7 +20,39 @@
       </div>
     </header>
 
-    <div class="workspace" id="workspace">
+    <div class="workspace" id="workspace" data-layout="investigation-mode">
+      <section id="investigation-commandbar" class="investigation-command-bar" data-layout="investigation-mode" data-zone="commandbar" aria-label="Command bar"></section>
+      <div id="investigation-layout" class="investigation-row" data-layout="investigation-mode">
+        <section id="investigation-signals" class="investigation-zone investigation-signals" data-zone="signals" aria-label="Signals"></section>
+        <section id="investigation-active" class="active-investigation-panel command-card investigation-zone" data-zone="active-investigation" aria-label="Active investigation">
+          <div id="active-investigation-body" class="active-investigation-body">
+            <div class="active-investigation-hero active-investigation-hero--empty">
+              <div class="active-investigation-kicker">Active investigation</div>
+              <h2 class="active-investigation-title">Run an analysis to open the investigation</h2>
+              <p class="active-investigation-why">Signals, financial impact, and recommended action will appear here after workbook analysis completes.</p>
+            </div>
+          </div>
+        </section>
+        <aside id="investigation-evidence" class="evidence-panel command-card investigation-zone" data-zone="evidence" aria-label="Evidence">
+          <h2 class="evidence-title">Evidence</h2>
+          <p class="evidence-deck">Source readiness, selected files, and audit links for the active signal.</p>
+          <div id="investigation-evidence-body" class="investigation-evidence-body">
+            <p class="placeholder-block placeholder-block--compact">
+              <span class="placeholder-block__label">No evidence selected</span>
+              <span class="placeholder-block__hint">Run analysis to populate source status and workbook evidence.</span>
+            </p>
+          </div>
+        </aside>
+      </div>
+      <section id="investigation-workbench" class="investigation-workbench-full" data-zone="workbench" aria-label="Financial workbench full width">
+        <div class="investigation-workbench-head">
+          <div>
+            <h2>Financial Workbench</h2>
+            <p>Full-width source tables, reconciliation, filters, and line detail.</p>
+          </div>
+          <span class="workbench-mode-chip">Data grid</span>
+        </div>
+      </section>
       <div class="workspace-main">
         <section class="app-rail project-library project-library--premium" id="project-library" aria-label="Project library">
           <h3 class="project-library-title">Project library</h3>

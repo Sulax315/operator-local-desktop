@@ -3870,49 +3870,12 @@ function setupInvestigationModeLayout() {
   workspace.dataset.investigationMode = "1";
   workspace.classList.add("investigation-mode");
 
-  const commandBar = document.createElement("section");
-  commandBar.className = "investigation-command-bar";
-  commandBar.setAttribute("aria-label", "Command bar");
-
-  const investigationRow = document.createElement("div");
-  investigationRow.className = "investigation-row";
-
-  const active = document.createElement("section");
-  active.className = "active-investigation-panel command-card";
-  active.id = "active-investigation-panel";
-  active.setAttribute("aria-label", "Active investigation");
-  active.innerHTML =
-    '<div id="active-investigation-body" class="active-investigation-body">' +
-    '<div class="active-investigation-hero active-investigation-hero--empty">' +
-    '<div class="active-investigation-kicker">Active investigation</div>' +
-    '<h2 class="active-investigation-title">Run an analysis to open the investigation</h2>' +
-    '<p class="active-investigation-why">Signals, financial impact, and recommended action will appear here after the selected workbook analysis completes.</p>' +
-    "</div></div>";
-
-  const evidence = document.createElement("aside");
-  evidence.className = "evidence-panel command-card";
-  evidence.id = "evidence-panel";
-  evidence.setAttribute("aria-label", "Evidence");
-  evidence.innerHTML =
-    '<h2 class="evidence-title">Evidence</h2>' +
-    '<p class="evidence-deck">Source readiness, selected files, and audit links for the active signal.</p>' +
-    '<div id="investigation-evidence-body" class="investigation-evidence-body">' +
-    '<p class="placeholder-block placeholder-block--compact"><span class="placeholder-block__label">No evidence selected</span><span class="placeholder-block__hint">Run analysis to populate source status and workbook evidence.</span></p>' +
-    "</div>";
-
-  const workbench = document.createElement("section");
-  workbench.className = "investigation-workbench-full";
-  workbench.id = "investigation-workbench-full";
-  workbench.setAttribute("aria-label", "Financial workbench full width");
-  workbench.innerHTML =
-    '<div class="investigation-workbench-head">' +
-    '<div><h2>Financial Workbench</h2><p>Full-width source tables, reconciliation, filters, and line detail.</p></div>' +
-    '<span class="workbench-mode-chip">Data grid</span>' +
-    "</div>";
-
-  workspace.insertBefore(commandBar, workspace.firstChild);
-  workspace.appendChild(investigationRow);
-  workspace.appendChild(workbench);
+  const commandBar = document.getElementById("investigation-commandbar");
+  const investigationRow = document.getElementById("investigation-layout");
+  const signalsZone = document.getElementById("investigation-signals");
+  const active = document.getElementById("investigation-active");
+  const workbench = document.getElementById("investigation-workbench");
+  if (!commandBar || !investigationRow || !signalsZone || !active || !workbench) return;
 
   const sticky = document.getElementById("report-builder-sticky");
   const source = document.getElementById("report-builder-source-collapse");
@@ -3929,98 +3892,8 @@ function setupInvestigationModeLayout() {
     const title = signals.querySelector(".rail-title");
     if (title) title.textContent = "Signals";
     if (library) signals.insertBefore(library, signals.firstChild);
-    investigationRow.appendChild(signals);
+    signalsZone.appendChild(signals);
   }
-
-  investigationRow.appendChild(active);
-  investigationRow.appendChild(evidence);
-
-  const finCmd = document.getElementById("fin-command-center");
-  const finSignals = document.getElementById("financial-signals");
-  const wbEmbed = document.getElementById("financial-workbench-embed");
-  const resultWorkspace = document.getElementById("result-workspace");
-  const finSurface = document.getElementById("financial-command-surface");
-
-  if (finCmd) {
-    finCmd.classList.add("investigation-highlights");
-    active.appendChild(finCmd);
-  }
-  if (finSignals) active.appendChild(finSignals);
-  if (wbEmbed) workbench.appendChild(wbEmbed);
-  if (resultWorkspace) workbench.appendChild(resultWorkspace);
-  if (finSurface) finSurface.classList.add("investigation-surface-shell");
-}
-
-function setupInvestigationModeLayout() {
-  const workspace = document.getElementById("workspace");
-  if (!workspace || workspace.dataset.investigationMode === "1") return;
-  workspace.dataset.investigationMode = "1";
-  workspace.classList.add("investigation-mode");
-
-  const commandBar = document.createElement("section");
-  commandBar.className = "investigation-command-bar";
-  commandBar.setAttribute("aria-label", "Command bar");
-
-  const investigationRow = document.createElement("div");
-  investigationRow.className = "investigation-row";
-
-  const active = document.createElement("section");
-  active.className = "active-investigation-panel command-card";
-  active.id = "active-investigation-panel";
-  active.setAttribute("aria-label", "Active investigation");
-  active.innerHTML =
-    '<div id="active-investigation-body" class="active-investigation-body">' +
-    '<div class="active-investigation-hero active-investigation-hero--empty">' +
-    '<div class="active-investigation-kicker">Active investigation</div>' +
-    '<h2 class="active-investigation-title">Run an analysis to open the investigation</h2>' +
-    '<p class="active-investigation-why">Signals, financial impact, and recommended action will appear here after the selected workbook analysis completes.</p>' +
-    "</div></div>";
-
-  const evidence = document.createElement("aside");
-  evidence.className = "evidence-panel command-card";
-  evidence.id = "evidence-panel";
-  evidence.setAttribute("aria-label", "Evidence");
-  evidence.innerHTML =
-    '<h2 class="evidence-title">Evidence</h2>' +
-    '<p class="evidence-deck">Source readiness, selected files, and audit links for the active signal.</p>' +
-    '<div id="investigation-evidence-body" class="investigation-evidence-body">' +
-    '<p class="placeholder-block placeholder-block--compact"><span class="placeholder-block__label">No evidence selected</span><span class="placeholder-block__hint">Run analysis to populate source status and workbook evidence.</span></p>' +
-    "</div>";
-
-  const workbench = document.createElement("section");
-  workbench.className = "investigation-workbench-full";
-  workbench.id = "investigation-workbench-full";
-  workbench.setAttribute("aria-label", "Financial workbench full width");
-  workbench.innerHTML =
-    '<div class="investigation-workbench-head">' +
-    '<div><h2>Financial Workbench</h2><p>Full-width source tables, reconciliation, filters, and line detail.</p></div>' +
-    '<span class="workbench-mode-chip">Data grid</span>' +
-    "</div>";
-
-  workspace.insertBefore(commandBar, workspace.firstChild);
-  workspace.appendChild(investigationRow);
-  workspace.appendChild(workbench);
-
-  const sticky = document.getElementById("report-builder-sticky");
-  const source = document.getElementById("report-builder-source-collapse");
-  const status = document.getElementById("status");
-  if (sticky) commandBar.appendChild(sticky);
-  if (source) commandBar.appendChild(source);
-  if (status) commandBar.appendChild(status);
-
-  const signals = document.getElementById("assistant-rail");
-  const library = document.getElementById("project-library");
-  if (signals) {
-    signals.classList.remove("rail-right", "rail-review-queue");
-    signals.classList.add("signals-rail");
-    const title = signals.querySelector(".rail-title");
-    if (title) title.textContent = "Signals";
-    if (library) signals.insertBefore(library, signals.firstChild);
-    investigationRow.appendChild(signals);
-  }
-
-  investigationRow.appendChild(active);
-  investigationRow.appendChild(evidence);
 
   const finCmd = document.getElementById("fin-command-center");
   const finSignals = document.getElementById("financial-signals");
