@@ -597,3 +597,402 @@ body.owb-premium,
   min-height: auto;
   padding: 6px 0 8px;
 }
+
+/* Investigation Mode structural rebuild: Signals -> Active Investigation -> Evidence, full-width workbench below. */
+.workspace.investigation-mode {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-areas:
+    "command"
+    "investigation"
+    "workbench" !important;
+  gap: 12px !important;
+  max-width: min(1900px, 100%) !important;
+  padding: 10px clamp(12px, 1.6vw, 24px) 24px !important;
+}
+
+.workspace.investigation-mode > .workspace-main {
+  display: none !important;
+}
+
+.investigation-command-bar {
+  grid-area: command;
+  position: sticky;
+  top: 58px;
+  z-index: 35;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #182235 0%, #111827 100%);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
+}
+
+.investigation-command-bar .report-builder-sticky {
+  position: static;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #e5edf8;
+}
+
+.investigation-command-bar .report-builder-context-kicker,
+.investigation-command-bar .report-toolbar-label,
+.investigation-command-bar .report-builder-context-subtle,
+.investigation-command-bar .report-toolbar-reason {
+  color: #9fb0c8;
+}
+
+.investigation-command-bar .report-builder-context-title {
+  color: #ffffff;
+}
+
+.investigation-command-bar .report-builder-toolbar {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.investigation-command-bar .report-builder-source-collapse {
+  margin: 0;
+}
+
+.investigation-command-bar .report-builder-source-collapse > summary {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e5edf8;
+}
+
+.investigation-command-bar .report-builder-source-inner {
+  max-height: 260px;
+  overflow: auto;
+  background: #ffffff;
+}
+
+.investigation-command-bar .status.analysis-run-status {
+  margin: 0;
+  padding: 0 2px;
+  border: 0;
+  color: #b8c5d8;
+}
+
+.investigation-row {
+  grid-area: investigation;
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(520px, 1fr) minmax(320px, 380px);
+  gap: 12px;
+  min-height: min(560px, calc(100vh - 245px));
+  align-items: stretch;
+}
+
+.signals-rail,
+.active-investigation-panel,
+.evidence-panel {
+  min-width: 0;
+  max-height: calc(100vh - 235px);
+  overflow: auto;
+  border: 1px solid #243044;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+}
+
+.signals-rail {
+  display: flex !important;
+  flex-direction: column;
+  grid-area: auto;
+  padding: 12px;
+}
+
+.signals-rail .project-library {
+  position: static;
+  order: -2;
+  margin: 0 0 12px;
+  padding: 12px;
+  border-color: #243044;
+  box-shadow: none;
+}
+
+.signals-rail .project-library-title {
+  font-size: 0.9rem;
+}
+
+.signals-rail .project-library-list {
+  max-height: 180px;
+}
+
+.signals-rail .rail-title--queue,
+.signals-rail .rail-title {
+  order: -1;
+  margin: 0 0 4px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 0.9rem;
+}
+
+.signals-rail .rail-deck {
+  margin: 0 0 10px;
+}
+
+.active-investigation-panel {
+  padding: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.active-investigation-body,
+.active-investigation-hero {
+  height: 100%;
+}
+
+.active-investigation-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(22px, 2.5vw, 36px);
+}
+
+.active-investigation-kicker {
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #eaf2ff;
+  color: #1f5fbf;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.active-investigation-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.active-investigation-title {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 1.3rem + 2.1vw, 3.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.active-investigation-why {
+  max-width: 68rem;
+  margin: 0;
+  color: #334155;
+  font-size: clamp(1rem, 0.9rem + 0.35vw, 1.25rem);
+  line-height: 1.45;
+}
+
+.investigation-severity {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.investigation-severity--mismatch,
+.investigation-severity--critical,
+.investigation-severity--high {
+  background: #fff1f2;
+  border: 1px solid #fda4af;
+  color: #9f1239;
+}
+
+.investigation-severity--ok {
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  color: #14532d;
+}
+
+.investigation-severity--watch,
+.investigation-severity--missing-source,
+.investigation-severity--medium {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+}
+
+.investigation-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.investigation-kpi-strip article {
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.investigation-kpi-strip span {
+  display: block;
+  margin-bottom: 6px;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.investigation-kpi-strip strong {
+  color: #0f172a;
+  font-size: clamp(1.35rem, 1rem + 1vw, 2.15rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+.investigation-kpi-strip .is-mismatch {
+  background: #fff7ed;
+  border-color: #fdba74;
+}
+
+.active-investigation-actions,
+.evidence-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.evidence-panel {
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.evidence-title {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.evidence-deck,
+.evidence-path,
+.evidence-notes {
+  color: #475569;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.evidence-status-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.evidence-status-grid article {
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.evidence-status-grid span {
+  display: block;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.evidence-status-grid strong {
+  color: #0f172a;
+}
+
+.evidence-subhead {
+  margin: 14px 0 6px;
+  color: #0f172a;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.investigation-workbench-full {
+  grid-area: workbench;
+  min-width: 0;
+  border: 1px solid #243044;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.investigation-workbench-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  background: #111827;
+  color: #ffffff;
+}
+
+.investigation-workbench-head h2,
+.investigation-workbench-head p {
+  margin: 0;
+}
+
+.investigation-workbench-head p {
+  color: #b8c5d8;
+  font-size: 0.82rem;
+}
+
+.workbench-mode-chip {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5edf8;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.investigation-workbench-full .financial-workbench {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  max-height: 78vh;
+}
+
+.investigation-workbench-full .result-workspace {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #cbd5e1;
+  border-radius: 0;
+}
+
+.active-investigation-panel .fin-command-center.investigation-highlights {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid #cbd5e1;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.active-investigation-panel .fin-command-center__title {
+  font-size: 0.9rem;
+}
+
+.active-investigation-panel .fin-command-center__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 1180px) {
+  .investigation-row {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .signals-rail,
+  .active-investigation-panel,
+  .evidence-panel {
+    max-height: none;
+  }
+}

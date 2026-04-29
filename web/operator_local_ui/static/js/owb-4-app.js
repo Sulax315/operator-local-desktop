@@ -3054,6 +3054,91 @@ function renderReviewQueueList(items) {
   });
 }
 
+function renderActiveInvestigationFromSignals(fs, ctx) {
+  const host = document.getElementById("active-investigation-body");
+  if (!host || !fs) return;
+  const wps = fs.workbook_profit_summary || {};
+  const tpp = ctx && ctx.tpp != null ? ctx.tpp : numOrNull(wps.total_projected_profit);
+  const wbook = ctx && ctx.wbook != null ? ctx.wbook : numOrNull(wps.workbook_reported_total_projected_profit);
+  const pvar = ctx && ctx.pvar != null ? ctx.pvar : numOrNull(wps.projected_profit_variance);
+  const severity = (ctx && ctx.sigHead) || (pvar != null && Math.abs(pvar) >= 0.02 ? "Mismatch" : "OK");
+  host.innerHTML = "";
+
+  const badgeClass = "investigation-severity investigation-severity--" + finCmdSignalToClass(severity);
+  host.innerHTML =
+    '<div class="active-investigation-hero">' +
+    '<div class="active-investigation-kicker">Active investigation</div>' +
+    '<div class="active-investigation-title-row">' +
+    '<h2 class="active-investigation-title">TPP reconciliation variance</h2>' +
+    `<span class="${badgeClass}">${severity}</span>` +
+    "</div>" +
+    '<p class="active-investigation-why">Compare the formula-built Total Projected Profit against the workbook-reported headline before relying on the forecast.</p>' +
+    '<div class="investigation-kpi-strip" aria-label="TPP reconciliation metrics">' +
+    `<article><span>Formula TPP</span><strong>${tpp != null ? fmtMoneyPlain(tpp) : "—"}</strong></article>` +
+    `<article><span>Workbook-reported TPP</span><strong>${wbook != null ? fmtMoneyPlain(wbook) : "—"}</strong></article>` +
+    `<article class="${pvar != null && Math.abs(pvar) >= 0.02 ? "is-mismatch" : "is-ok"}"><span>Variance</span><strong>${pvar != null ? fmtMoneySigned(pvar) : "—"}</strong></article>` +
+    "</div>" +
+    '<div class="active-investigation-actions">' +
+    '<button type="button" class="btn-toolbar-primary" data-investigation-action="reconciliation">Open reconciliation</button>' +
+    '<button type="button" class="btn-ghost" data-investigation-action="workbench">Go to workbench</button>' +
+    "</div>" +
+    "</div>";
+
+  host.querySelectorAll("[data-investigation-action]").forEach((btn) => {
+    btn.addEventListener("click", () => runReviewQueueAction(btn.getAttribute("data-investigation-action")));
+  });
+}
+
+function renderActiveInvestigationFromQueue(items) {
+  const host = document.getElementById("active-investigation-body");
+  if (!host || window.__OWB_LAST_FS) return;
+  const top = (items || [])[0];
+  if (!top) return;
+  host.innerHTML =
+    '<div class="active-investigation-hero">' +
+    '<div class="active-investigation-kicker">Active investigation</div>' +
+    '<div class="active-investigation-title-row">' +
+    `<h2 class="active-investigation-title">${top.issue || "Review signal"}</h2>` +
+    `<span class="investigation-severity investigation-severity--${String(top.severity || "watch").toLowerCase()}">${top.severity || "WATCH"}</span>` +
+    "</div>" +
+    `<p class="active-investigation-why">${top.why || "Review the latest analysis output."}</p>` +
+    '<div class="active-investigation-actions">' +
+    `<button type="button" class="btn-toolbar-primary" data-investigation-action="${top.action || "workbench"}">${top.actionLabel || "Open evidence"}</button>` +
+    "</div>" +
+    "</div>";
+  host.querySelectorAll("[data-investigation-action]").forEach((btn) => {
+    btn.addEventListener("click", () => runReviewQueueAction(btn.getAttribute("data-investigation-action")));
+  });
+}
+
+function renderEvidencePanelFromSignals(fs, ctx) {
+  const host = document.getElementById("investigation-evidence-body");
+  if (!host || !fs) return;
+  const wps = fs.workbook_profit_summary || {};
+  const selected = Array.from(reportPathSelection || []).slice(0, 3);
+  const lim = Array.isArray(wps.projected_profit_limitations) ? wps.projected_profit_limitations : [];
+  const roll = (fs.extraction_confidence && fs.extraction_confidence.rollup) || "—";
+  const pvar = ctx && ctx.pvar != null ? ctx.pvar : numOrNull(wps.projected_profit_variance);
+  host.innerHTML =
+    '<div class="evidence-status-grid">' +
+    `<article><span>Source status</span><strong>${roll}</strong></article>` +
+    `<article><span>Variance status</span><strong>${pvar != null && Math.abs(pvar) >= 0.02 ? "Mismatch" : "Aligned"}</strong></article>` +
+    "</div>" +
+    '<h3 class="evidence-subhead">Selected workbook(s)</h3>' +
+    `<p class="evidence-path">${selected.length ? selected.join(" · ") : "No workbook selection captured in this view."}</p>` +
+    '<h3 class="evidence-subhead">Linked actions</h3>' +
+    '<div class="evidence-action-row">' +
+    '<button type="button" class="btn-ghost" data-evidence-action="reconciliation">Reconciliation tab</button>' +
+    '<button type="button" class="btn-ghost" data-evidence-action="extraction">Source detail</button>' +
+    '<button type="button" class="btn-ghost" data-evidence-action="signals-limits">Audit notes</button>' +
+    "</div>" +
+    '<h3 class="evidence-subhead">Audit / source notes</h3>' +
+    `<ul class="evidence-notes">${lim.length ? lim.slice(0, 4).map((x) => `<li>${String(x)}</li>`).join("") : "<li>No limitation lines attached.</li>"}</ul>`;
+  host.querySelectorAll("[data-evidence-action]").forEach((btn) => {
+    btn.addEventListener("click", () => runReviewQueueAction(btn.getAttribute("data-evidence-action")));
+  });
+}
+
 function renderAssistant(av, execSig) {
   const idle = document.getElementById("assistant-idle");
   const body = document.getElementById("assistant-body");
@@ -3062,6 +3147,7 @@ function renderAssistant(av, execSig) {
   const fromFs = buildReviewQueueItemsFromFinancialSignals(window.__OWB_LAST_FS);
   const fromCmp = sig ? buildReviewQueueItemsFromCompare(sig, av || {}) : [];
   const items = mergeAndSortReviewQueueItems(fromFs, fromCmp);
+  renderActiveInvestigationFromQueue(items);
   const lead = document.getElementById("assistant-lead");
   if (lead) lead.textContent = "";
 
@@ -3639,6 +3725,9 @@ function renderFinCommandCenterFromSignals(fs) {
   else if (pvar != null && Math.abs(pvar) >= 0.02) sigHead = "Mismatch";
   else if (String(roll).toLowerCase() === "low") sigHead = "Watch";
 
+  renderActiveInvestigationFromSignals(fs, { sigHead, tpp, wbook, pvar, roll });
+  renderEvidencePanelFromSignals(fs, { sigHead, pvar, roll });
+
   finCmdAppendCard(grid, {
     label: "Total projected profit · Workbook TPP",
     valueLines: [
@@ -3773,6 +3862,180 @@ function showFinWorkbenchFailurePanel(fs, meta) {
         ? "Likely next check: confirm owb-2-report-workbench.js loaded (Runtime diagnostics), hard-refresh with cache disabled, then re-run analysis."
         : "Likely next check: confirm this analysis type emits financial_workbench rows; open Source notes / limitations in the analysis panel.";
   }
+}
+
+function setupInvestigationModeLayout() {
+  const workspace = document.getElementById("workspace");
+  if (!workspace || workspace.dataset.investigationMode === "1") return;
+  workspace.dataset.investigationMode = "1";
+  workspace.classList.add("investigation-mode");
+
+  const commandBar = document.createElement("section");
+  commandBar.className = "investigation-command-bar";
+  commandBar.setAttribute("aria-label", "Command bar");
+
+  const investigationRow = document.createElement("div");
+  investigationRow.className = "investigation-row";
+
+  const active = document.createElement("section");
+  active.className = "active-investigation-panel command-card";
+  active.id = "active-investigation-panel";
+  active.setAttribute("aria-label", "Active investigation");
+  active.innerHTML =
+    '<div id="active-investigation-body" class="active-investigation-body">' +
+    '<div class="active-investigation-hero active-investigation-hero--empty">' +
+    '<div class="active-investigation-kicker">Active investigation</div>' +
+    '<h2 class="active-investigation-title">Run an analysis to open the investigation</h2>' +
+    '<p class="active-investigation-why">Signals, financial impact, and recommended action will appear here after the selected workbook analysis completes.</p>' +
+    "</div></div>";
+
+  const evidence = document.createElement("aside");
+  evidence.className = "evidence-panel command-card";
+  evidence.id = "evidence-panel";
+  evidence.setAttribute("aria-label", "Evidence");
+  evidence.innerHTML =
+    '<h2 class="evidence-title">Evidence</h2>' +
+    '<p class="evidence-deck">Source readiness, selected files, and audit links for the active signal.</p>' +
+    '<div id="investigation-evidence-body" class="investigation-evidence-body">' +
+    '<p class="placeholder-block placeholder-block--compact"><span class="placeholder-block__label">No evidence selected</span><span class="placeholder-block__hint">Run analysis to populate source status and workbook evidence.</span></p>' +
+    "</div>";
+
+  const workbench = document.createElement("section");
+  workbench.className = "investigation-workbench-full";
+  workbench.id = "investigation-workbench-full";
+  workbench.setAttribute("aria-label", "Financial workbench full width");
+  workbench.innerHTML =
+    '<div class="investigation-workbench-head">' +
+    '<div><h2>Financial Workbench</h2><p>Full-width source tables, reconciliation, filters, and line detail.</p></div>' +
+    '<span class="workbench-mode-chip">Data grid</span>' +
+    "</div>";
+
+  workspace.insertBefore(commandBar, workspace.firstChild);
+  workspace.appendChild(investigationRow);
+  workspace.appendChild(workbench);
+
+  const sticky = document.getElementById("report-builder-sticky");
+  const source = document.getElementById("report-builder-source-collapse");
+  const status = document.getElementById("status");
+  if (sticky) commandBar.appendChild(sticky);
+  if (source) commandBar.appendChild(source);
+  if (status) commandBar.appendChild(status);
+
+  const signals = document.getElementById("assistant-rail");
+  const library = document.getElementById("project-library");
+  if (signals) {
+    signals.classList.remove("rail-right", "rail-review-queue");
+    signals.classList.add("signals-rail");
+    const title = signals.querySelector(".rail-title");
+    if (title) title.textContent = "Signals";
+    if (library) signals.insertBefore(library, signals.firstChild);
+    investigationRow.appendChild(signals);
+  }
+
+  investigationRow.appendChild(active);
+  investigationRow.appendChild(evidence);
+
+  const finCmd = document.getElementById("fin-command-center");
+  const finSignals = document.getElementById("financial-signals");
+  const wbEmbed = document.getElementById("financial-workbench-embed");
+  const resultWorkspace = document.getElementById("result-workspace");
+  const finSurface = document.getElementById("financial-command-surface");
+
+  if (finCmd) {
+    finCmd.classList.add("investigation-highlights");
+    active.appendChild(finCmd);
+  }
+  if (finSignals) active.appendChild(finSignals);
+  if (wbEmbed) workbench.appendChild(wbEmbed);
+  if (resultWorkspace) workbench.appendChild(resultWorkspace);
+  if (finSurface) finSurface.classList.add("investigation-surface-shell");
+}
+
+function setupInvestigationModeLayout() {
+  const workspace = document.getElementById("workspace");
+  if (!workspace || workspace.dataset.investigationMode === "1") return;
+  workspace.dataset.investigationMode = "1";
+  workspace.classList.add("investigation-mode");
+
+  const commandBar = document.createElement("section");
+  commandBar.className = "investigation-command-bar";
+  commandBar.setAttribute("aria-label", "Command bar");
+
+  const investigationRow = document.createElement("div");
+  investigationRow.className = "investigation-row";
+
+  const active = document.createElement("section");
+  active.className = "active-investigation-panel command-card";
+  active.id = "active-investigation-panel";
+  active.setAttribute("aria-label", "Active investigation");
+  active.innerHTML =
+    '<div id="active-investigation-body" class="active-investigation-body">' +
+    '<div class="active-investigation-hero active-investigation-hero--empty">' +
+    '<div class="active-investigation-kicker">Active investigation</div>' +
+    '<h2 class="active-investigation-title">Run an analysis to open the investigation</h2>' +
+    '<p class="active-investigation-why">Signals, financial impact, and recommended action will appear here after the selected workbook analysis completes.</p>' +
+    "</div></div>";
+
+  const evidence = document.createElement("aside");
+  evidence.className = "evidence-panel command-card";
+  evidence.id = "evidence-panel";
+  evidence.setAttribute("aria-label", "Evidence");
+  evidence.innerHTML =
+    '<h2 class="evidence-title">Evidence</h2>' +
+    '<p class="evidence-deck">Source readiness, selected files, and audit links for the active signal.</p>' +
+    '<div id="investigation-evidence-body" class="investigation-evidence-body">' +
+    '<p class="placeholder-block placeholder-block--compact"><span class="placeholder-block__label">No evidence selected</span><span class="placeholder-block__hint">Run analysis to populate source status and workbook evidence.</span></p>' +
+    "</div>";
+
+  const workbench = document.createElement("section");
+  workbench.className = "investigation-workbench-full";
+  workbench.id = "investigation-workbench-full";
+  workbench.setAttribute("aria-label", "Financial workbench full width");
+  workbench.innerHTML =
+    '<div class="investigation-workbench-head">' +
+    '<div><h2>Financial Workbench</h2><p>Full-width source tables, reconciliation, filters, and line detail.</p></div>' +
+    '<span class="workbench-mode-chip">Data grid</span>' +
+    "</div>";
+
+  workspace.insertBefore(commandBar, workspace.firstChild);
+  workspace.appendChild(investigationRow);
+  workspace.appendChild(workbench);
+
+  const sticky = document.getElementById("report-builder-sticky");
+  const source = document.getElementById("report-builder-source-collapse");
+  const status = document.getElementById("status");
+  if (sticky) commandBar.appendChild(sticky);
+  if (source) commandBar.appendChild(source);
+  if (status) commandBar.appendChild(status);
+
+  const signals = document.getElementById("assistant-rail");
+  const library = document.getElementById("project-library");
+  if (signals) {
+    signals.classList.remove("rail-right", "rail-review-queue");
+    signals.classList.add("signals-rail");
+    const title = signals.querySelector(".rail-title");
+    if (title) title.textContent = "Signals";
+    if (library) signals.insertBefore(library, signals.firstChild);
+    investigationRow.appendChild(signals);
+  }
+
+  investigationRow.appendChild(active);
+  investigationRow.appendChild(evidence);
+
+  const finCmd = document.getElementById("fin-command-center");
+  const finSignals = document.getElementById("financial-signals");
+  const wbEmbed = document.getElementById("financial-workbench-embed");
+  const resultWorkspace = document.getElementById("result-workspace");
+  const finSurface = document.getElementById("financial-command-surface");
+
+  if (finCmd) {
+    finCmd.classList.add("investigation-highlights");
+    active.appendChild(finCmd);
+  }
+  if (finSignals) active.appendChild(finSignals);
+  if (wbEmbed) workbench.appendChild(wbEmbed);
+  if (resultWorkspace) workbench.appendChild(resultWorkspace);
+  if (finSurface) finSurface.classList.add("investigation-surface-shell");
 }
 
 function refreshOwbRuntimeDiagnostics() {
@@ -4012,5 +4275,6 @@ function setupHistoryClicks() {
 
 setupHistoryClicks();
 setupOperatorAssistantSurface();
+setupInvestigationModeLayout();
 initOperatorWorkspace();
 refreshReportBuilderWorkbenchShell();
